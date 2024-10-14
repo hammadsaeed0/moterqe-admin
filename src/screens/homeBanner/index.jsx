@@ -4,24 +4,14 @@ import Button from "../../components/Button";
 import axios from "axios";
 import { Base_url } from "../../utils/Base_url";
 import Swal from "sweetalert2";
-import { toast } from "react-toastify";
-import Add_vehicle_model from "./Add_vehicle_model";
-
-const VehicleModel = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  console.log(isModalOpen);
-
+import { Link } from "react-router-dom";
+import UpdateBanner from "./UpdateBanner";
+const HomeBanner = () => {
+  const [users, setUsers] = useState([]);
+  const [singleData, setSingleData] = useState({});
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-
+  const [isUpdateOpen2, setIsUpdateOpen2] = useState(false);
+  const [singleUser, setSingleUser] = useState({});
   const UpdateModal = () => {
     setIsUpdateOpen(true);
   };
@@ -30,17 +20,25 @@ const VehicleModel = () => {
     setIsUpdateOpen(false);
   };
 
+  const UpdateModal2 = () => {
+    setIsUpdateOpen2(true);
+  };
+
+  const closeUpdateModal2 = () => {
+    setIsUpdateOpen2(false);
+  };
+
   console.log(isUpdateOpen);
 
-  const [users, setUsers] = useState([]);
+  const [deleteUser, setDeleteUser] = useState({});
 
-  const [singleUser, setSingleUser] = useState({});
+  console.log(deleteUser, "deleteUser");
 
   useEffect(() => {
     axios
-      .get(`https://autoproapp-1537b3ac9acb.herokuapp.com/admin/model/getAll`)
+      .get(`${Base_url}/user/header-image`)
       .then((res) => {
-        console.log(res.data);
+        console.log(res);
 
         setUsers(res.data.data);
       })
@@ -63,14 +61,14 @@ const VehicleModel = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`https://autoproapp-1537b3ac9acb.herokuapp.com/admin/model/delete/${id}`)
+          .delete(`${Base_url}/admin/delete-plan/${id}`)
           .then((res) => {
             console.log(res);
             if (res.status === 200) {
               Swal.fire("Deleted!", "Your file has been deleted.", "success");
 
               axios
-                .get(`https://autoproapp-1537b3ac9acb.herokuapp.com/admin/model/getAll`)
+                .get(`${Base_url}/admin/plan`)
                 .then((res) => {
                   console.log(res.data);
 
@@ -90,35 +88,29 @@ const VehicleModel = () => {
 
   return (
     <Wrapper>
+
+        <UpdateBanner setIsModalOpen={setIsUpdateOpen} isModalOpen={isUpdateOpen} setUsers={setUsers} getData={singleUser} />
       <div className=" flex   justify-between items-center">
         <div>
-          <h2 className="main_title">Vehicle Model</h2>
-          {/* <p className="param">Showing 8 to 20</p> */}
+          <h2 className="main_title"> Home Banner</h2>
         </div>
-      
-        <Add_vehicle_model
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-          setUsers={setUsers}
-        />
+
         <div>
-          <Button
-            className={"  bg-primary py-3"}
-            label={`Add Model`}
-            onClick={openModal}
-          />
+        
         </div>
       </div>
 
+   
+
       <section className="mb-20 mt-7 text-gray-800">
-        <div className="block  rounded-lg shadow-lg bg-white">
-          <div className="flex flex-col overflow-x-auto">
-            <div className=" sm:-mx-6 lg:-mx-8">
+        <div className="block rounded-lg shadow-lg">
+          <div className="flex flex-col">
+            <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
               <div className="inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="overflow-hidden">
                   <table className="min-w-full mb-0">
-                    <thead className="  bg-primary">
-                      <tr className=" rounded-lg  whitespace-nowrap ">
+                    <thead className=" bg-primary">
+                      <tr className=" rounded-lg whitespace-nowrap ">
                         <th
                           scope="col"
                           className=" text-sm text-white  font-bold px-6 py-4"
@@ -129,19 +121,15 @@ const VehicleModel = () => {
                           scope="col"
                           className=" text-sm text-white  font-bold px-6 py-4"
                         >
-                          Vehicle
+                          Image
                         </th>
-
-
-
-                        <th
-                          scope="col"
-                          className=" text-sm text-white  font-bold px-6 py-4"
-                        >
-                          Vehicle Model
-                        </th>
-
                         
+                        {/* <th
+                          scope="col"
+                          className="text-sm  text-white   font-bold px-6 py-4"
+                        >
+                          Date
+                        </th> */}
 
                         <th
                           scope="col"
@@ -155,39 +143,41 @@ const VehicleModel = () => {
                       {users?.map((item, index) => {
                         return (
                           <>
-                            <tr className="bg-white border-t  rounded-md">
+                            <tr className="bg-white border-t   rounded-md ">
                               <th
                                 scope="row"
                                 className="text-sm font-normal px-6 py-4   whitespace-nowrap "
                               >
-                                <div className="flex     justify-center  flex-row items-center">
-                                  <p className="mb-0.5 font-medium text-black">
-                                    #{index+1}
-                                  </p>
-                                </div>
+                                <p className="mb-0.5 font-medium text-black">
+                                  #1
+                                </p>
                               </th>
-                              <td className="align-middle text-sm font-normal px-6 py-4 whitespace-nowrap text-center">
+                              <td className="align-middle text-sm font-normal px-6 py-4 whitespace-nowrap  text-center">
                                 <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                  {item?.carId?.title}
+                                <img src={item?.imageUrl}   className=" w-20 h-20 rounded-md mx-auto" alt="" />
                                 </span>
                               </td>
-
-
-                              <td className="align-middle text-sm font-normal px-6 py-4 whitespace-nowrap text-center">
+                              {/* <td className="text-sm font-normal text-center px-6 py-4 whitespace-nowrap">
                                 <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                  {item?.title}
+                                   34
                                 </span>
-                              </td>
-                            
-                              
-                            
-                              <td className="align-middle text-right text-sm font-normal px-6 py-4 whitespace-nowrap text-center">
-                                <div className=" flex  justify-center gap-2">
+                              </td> */}
+                          
+                             
+
+                              <td className="align-middle  text-sm font-normal px-6 py-4 whitespace-nowrap">
+                                <div className=" flex justify-center gap-2">
+                                  <div className=" cursor-pointer">
+                                    <img
+                                      onClick={() => {
+                                        setIsUpdateOpen(true);
+                                        setSingleUser(item);
+                                      }}
+                                      src={require("../../assets/image/edit.png")}
+                                      alt=""
+                                    />
+                                  </div>
                                   
-                                    <div>
-                                    <img  onClick={() => removeFunction(item._id)} src={require('../../assets/image/del.png')} alt=""  />
-                                    </div>
-                                 
                                 </div>
                               </td>
                             </tr>
@@ -206,4 +196,4 @@ const VehicleModel = () => {
   );
 };
 
-export default VehicleModel;
+export default HomeBanner;

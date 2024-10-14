@@ -5,7 +5,7 @@ import { MdOutlineNotificationsActive } from "react-icons/md";
 const AdminNav = ({ openSidebar, side, closeSidebar }) => {
   return (
     <nav
-      className={`fixed  top-0 right-0   ${
+      className={`fixed  z-30 top-0 right-0   ${
         side === "left-0 md:-left-64" ? "left-0" : "left-0 md:left-64"
       }`}
     >

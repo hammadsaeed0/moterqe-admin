@@ -7,32 +7,34 @@ import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import { toast } from "react-toastify";
-const Cars = () => {
+const Garage = () => {
   const [users, setUsers] = useState([]);
   const [activeCars, setActiveCards] = useState([]);
 
   useEffect(() => {
     axios
-      .post(`${Base_url}/admin/all-cars-by-status?status=pending`)
+      .get(`${Base_url}/user/garage?status=pending`)
       .then((res) => {
         console.log(res);
 
-        setUsers(res.data);
+        setUsers(res?.data?.garages);
       })
       .catch((error) => {
         console.log(error);
       });
 
     axios
-      .post(`${Base_url}/admin/all-cars-by-status?status=active`)
+      .get(`${Base_url}/user/garage?status=active`)
       .then((res) => {
-        console.log(res, "active cars");
+        console.log(res?.data, "active cars");
 
-        setActiveCards(res.data);
+        setActiveCards(res?.data?.garages);
       })
       .catch((error) => {
         console.log(error);
       });
+
+      
   }, []);
 
   console.log(users);
@@ -49,33 +51,55 @@ const Cars = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`${Base_url}/admin/delete-car/${id}`)
+          .delete(`${Base_url}/admin/delete-garage/${id}`)
           .then((res) => {
             console.log(res);
             if (res.status === 200) {
               Swal.fire("Deleted!", "Your file has been deleted.", "success");
 
               axios
-              .post(`${Base_url}/admin/all-cars-by-status?status=pending`)
-              .then((res) => {
-                console.log(res);
-        
-                setUsers(res.data);
-              })
-              .catch((error) => {
-                console.log(error);
-              });
-        
-            axios
-              .post(`${Base_url}/admin/all-cars-by-status?status=active`)
-              .then((res) => {
-                console.log(res, "active cars");
-        
-                setActiveCards(res.data);
-              })
-              .catch((error) => {
-                console.log(error);
-              });
+                .get(`${Base_url}/user/garage?status=pending`)
+                .then((res) => {
+                  console.log(res);
+
+                  setUsers(res?.data?.garages);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+
+              axios
+                .get(`${Base_url}/user/garage?status=active`)
+                .then((res) => {
+                  console.log(res?.data, "active cars");
+
+                  setActiveCards(res?.data?.garages);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+
+              axios
+                .get(`${Base_url}/user/garage?status=pending`)
+                .then((res) => {
+                  console.log(res);
+
+                  setUsers(res?.data?.garages);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+
+              axios
+                .get(`${Base_url}/user/garage?status=active`)
+                .then((res) => {
+                  console.log(res?.data, "active cars");
+
+                  setActiveCards(res?.data?.garages);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
             }
           })
           .catch((error) => {
@@ -100,22 +124,43 @@ const Cars = () => {
           toast.success(res.data.message);
 
           axios
-            .post(`${Base_url}/admin/all-cars-by-status?status=pending`)
+            .get(`${Base_url}/user/garage?status=pending`)
             .then((res) => {
               console.log(res);
 
-              setUsers(res.data);
+              setUsers(res?.data?.garages);
             })
             .catch((error) => {
               console.log(error);
             });
 
           axios
-            .post(`${Base_url}/admin/all-cars-by-status?status=active`)
+            .get(`${Base_url}/user/garage?status=active`)
             .then((res) => {
-              console.log(res, "active cars");
+              console.log(res?.data, "active cars");
 
-              setActiveCards(res.data);
+              setActiveCards(res?.data?.garages);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+          axios
+            .get(`${Base_url}/user/garage?status=pending`)
+            .then((res) => {
+              console.log(res);
+
+              setUsers(res?.data?.garages);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+
+          axios
+            .get(`${Base_url}/user/garage?status=active`)
+            .then((res) => {
+              console.log(res?.data, "active cars");
+
+              setActiveCards(res?.data?.garages);
             })
             .catch((error) => {
               console.log(error);
@@ -126,29 +171,6 @@ const Cars = () => {
         console.log(error);
       });
   };
-
-
-  const  UpdateRefresh =  () =>{
-
-    axios.patch(`${Base_url}/admin/allow-refresh`).then((res)=>{
-
-      console.log(res);
-   
-      if(res.data.success===true){
-        toast.success(res.data.message)
-      }else{
-        toast.error(res.data.message)
-      }
-
-      
-
-      
-    }).catch((error)=>{
-      console.log(error);
-      
-    })
-
-  }
 
   const renderTable = (data) => (
     <section className="mb-20 mt-7 text-gray-800">
@@ -190,21 +212,21 @@ const Cars = () => {
                         scope="col"
                         className="text-sm  text-white   font-bold px-6 py-4"
                       >
-                        Price Range
+                        Price
                       </th>
 
                       <th
                         scope="col"
                         className="text-sm  text-white   font-bold px-6 py-4"
                       >
-                        Model
+                        Address
                       </th>
 
                       <th
                         scope="col"
                         className="text-sm  text-white   font-bold px-6 py-4"
                       >
-                        Vehicle Category
+                        Service Name
                       </th>
 
                       <th
@@ -244,13 +266,13 @@ const Cars = () => {
                             </th>
                             <td className="align-middle text-sm font-normal px-6 py-4 whitespace-nowrap  text-center">
                               <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                {item?.title}
+                                {item?.garageName}
                               </span>
                             </td>
                             <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
                               <div className=" w-14 h-14 rounded-lg overflow-hidden">
                                 <img
-                                  src={item?.car_images[0]}
+                                  src={item?.logo}
                                   className=" w-full h-full"
                                   alt=""
                                 />
@@ -263,18 +285,18 @@ const Cars = () => {
                             </td>
                             <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
                               <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
-                                {item?.price_range}
+                                {item?.price}
                               </span>
                             </td>
                             <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
                               <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
-                                {item?.model}
+                                {item?.address}
                               </span>
                             </td>
 
                             <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
                               <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
-                                {item?.vehicle_category}
+                                {item?.serviceName}
                               </span>
                             </td>
 
@@ -302,7 +324,7 @@ const Cars = () => {
                             <td className="align-middle  text-sm font-normal  py-4 whitespace-nowrap">
                               <div className=" flex items-center justify-center gap-2">
                                 <Link
-                                  to={`http://44.242.210.218:3000/car_details_page/${item?._id}`}
+                                  to={`http://44.242.210.218:3000/garage/garage-details/${item?._id}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
@@ -313,7 +335,7 @@ const Cars = () => {
                                   />
                                 </Link>
                                 <Link
-                                  to={`/update_car/${item?._id}`}
+                                  to={`/update_garage/${item?._id}`}
                                   className=" cursor-pointer"
                                 >
                                   <img
@@ -347,17 +369,10 @@ const Cars = () => {
     <Wrapper>
       <div className=" flex   justify-between items-center">
         <div>
-          <h2 className="main_title"> Cars</h2>
+          <h2 className="main_title"> Garage</h2>
         </div>
 
         <div className=" flex gap-3">
-        <div>
-            <Button
-              onClick={()=>UpdateRefresh()}
-              label={"Refresh"}
-              className={" bg-primary"}
-            />
-          </div>
           <div>
             <Button
               onClick={() => setCarStatus("pending")}
@@ -383,4 +398,4 @@ const Cars = () => {
   );
 };
 
-export default Cars;
+export default Garage;

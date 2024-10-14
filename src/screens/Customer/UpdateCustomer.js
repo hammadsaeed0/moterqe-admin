@@ -6,44 +6,56 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Modal from "../../components/modal";
 import { MdClose } from "react-icons/md";
-const Add_vehicle = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
+const UpdateCustomers = ({
+  isModalOpen,
+  setIsModalOpen,
+  closeModal,
+  setUsers,
+  getData,
+}) => {
+  console.log(getData);
+
   const [loading, setLoading] = useState(false);
 
   const bannerSubmit = async (values) => {
-    if (values.name.value.length === 0) {
-      toast.error("Please Enter Name!");
-    } else {
-      setLoading(true);
-      const params = {
-        name: values.name.value,
-      };
-      await axios
-        .post(`${Base_url}/master/create`, params)
-        .then((res) => {
-          console.log(res.data);
+    setLoading(true);
 
-          if (res.data.status === "ok") {
-            toast.success(res.data?.message);
-            setIsModalOpen(false);
-            setLoading(false);
-            axios
-              .get(`${Base_url}/master/get`)
-              .then((res) => {
-                console.log(res.data);
+    const params = {
+      username: values.username.value,
+      email: values.email.value,
+      phone: values.phone.value,
+      password: values.password.value,
+    };
+    await axios
+      .patch(`${Base_url}/user/edit-profile/${getData?._id}`, params)
+      .then((res) => {
+        console.log(res);
 
-                setUsers(res.data.data);
-              })
-              .catch((error) => {
-                console.log(error);
-              });
-          }
-        })
-        .catch((error) => {
-          toast.error(error);
-
+        if (res.status === 200) {
+          toast.success(res.data?.message);
+          setIsModalOpen(false);
           setLoading(false);
-        });
-    }
+          axios
+          .get(`${Base_url}/admin/all-user`)
+          .then((res) => {
+            console.log(res);
+    
+            const userData = res?.data?.data?.filter(
+              (item) => item?.profileStatus === "privateSeller"
+            );
+    
+            setUsers(userData);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        }
+      })
+      .catch((error) => {
+        toast.error(error);
+
+        setLoading(false);
+      });
   };
 
   return (
@@ -53,7 +65,9 @@ const Add_vehicle = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
         <div className="">
           <div className=" p-3 flex justify-between items-center">
             <div></div>
-            <h1 className="capitalize h4 font-semibold">Add Status</h1>
+            <h1 className="capitalize h4 font-semibold">
+              Update Private Seller
+            </h1>
             <MdClose onClick={() => setIsModalOpen(false)} size={25} />
           </div>
           <hr />
@@ -65,12 +79,41 @@ const Add_vehicle = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
               }}
             >
               <div className=" flex gap-5 flex-wrap">
-                <div className=" w-[100%]">
+                <div className=" md:w-[48%] w-[100%]">
                   <Input
-                    label={"Name"}
+                    label={"Username"}
                     placeholder={""}
-                    name={"name"}
+                    name={"username"}
                     className={"border  w-full  py-3"}
+                    defaultValue={getData?.username}
+                  />
+                </div>
+                <div className=" md:w-[48%] w-[100%]">
+                  <Input
+                    label={"Email"}
+                    placeholder={""}
+                    name={"email"}
+                    className={"border  w-full  py-3"}
+                    defaultValue={getData?.email}
+                  />
+                </div>
+
+                <div className=" md:w-[48%] w-[100%]">
+                  <Input
+                    label={"Phone"}
+                    placeholder={""}
+                    name={"phone"}
+                    className={"border  w-full  py-3"}
+                    defaultValue={getData?.phone}
+                  />
+                </div>
+                <div className=" md:w-[48%] w-[100%]">
+                  <Input
+                    label={"Password"}
+                    placeholder={""}
+                    name={"password"}
+                    className={"border  w-full  py-3"}
+                    defaultValue={getData?.password}
                   />
                 </div>
               </div>
@@ -101,7 +144,7 @@ const Add_vehicle = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
                 </button>
               ) : (
                 <Button
-                  label={"save"}
+                  label={"Update"}
                   type={"submit"}
                   className={
                     "   bg-primary mt-3 uppercase text-white py-2  w-full"
@@ -116,4 +159,4 @@ const Add_vehicle = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
   );
 };
 
-export default Add_vehicle;
+export default UpdateCustomers;

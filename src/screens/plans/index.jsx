@@ -6,8 +6,10 @@ import { Base_url } from "../../utils/Base_url";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import CreatePlan from "./CreatePlan";
+import UpdatePlan from "./UpdatePlan";
 const Plans = () => {
   const [users, setUsers] = useState([]);
+  const [singleData, setSingleData] = useState({});
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isUpdateOpen2, setIsUpdateOpen2] = useState(false);
   const [singleUser, setSingleUser] = useState({});
@@ -105,6 +107,13 @@ const Plans = () => {
         isModalOpen={isUpdateOpen}
         setIsModalOpen={setIsUpdateOpen}
         setUsers={setUsers}
+      />
+
+      <UpdatePlan
+        isModalOpen={isUpdateOpen2}
+        setIsModalOpen={setIsUpdateOpen2}
+        setUsers={setUsers}
+        getData={singleUser}
       />
 
       <section className="mb-20 mt-7 text-gray-800">
@@ -217,7 +226,7 @@ const Plans = () => {
 
                               <td className="align-middle  text-sm font-normal px-6 py-4 whitespace-nowrap">
                                 <div className=" flex justify-center gap-2">
-                                  {/* <div>
+                                  <div>
                                     <img
                                       onClick={() => {
                                         setIsUpdateOpen2(true);
@@ -226,7 +235,7 @@ const Plans = () => {
                                       src={require("../../assets/image/edit.png")}
                                       alt=""
                                     />
-                                  </div> */}
+                                  </div>
                                   <div>
                                     <img
                                       onClick={() => removeFunction(item._id)}

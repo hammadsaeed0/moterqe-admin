@@ -29,13 +29,19 @@ const Sidebar = ({ side, closeSidebar }) => {
         <li className="px-4 cursor-pointer  font-semibold  transition-all py-3 text-black flex items-center  hover:bg-primary hover:text-white">
           <i class="bi bi-grid-fill  mr-2 inline-block text-xl"></i>
           <Link to="/customers" className="text-lg capitalize">
-            Customers
+            Private Seller
           </Link>
         </li>
         <li className="px-4 cursor-pointer   font-semibold   transition-all py-3 text-black flex items-center hover:bg-primary hover:text-white">
           <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
           <Link to="/dealer" className="text-lg capitalize">
-          Dealer
+            Dealer
+          </Link>
+        </li>
+        <li className="px-4 cursor-pointer   font-semibold   transition-all py-3 text-black flex items-center hover:bg-primary hover:text-white">
+          <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
+          <Link to="/service_provider" className="text-lg capitalize">
+            Service Provider
           </Link>
         </li>
         <li className="px-4 cursor-pointer   font-semibold  transition-all py-3 text-black flex items-center  hover:bg-primary hover:text-white">
@@ -48,6 +54,24 @@ const Sidebar = ({ side, closeSidebar }) => {
           <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
           <Link to="/cars" className="text-lg capitalize">
             Cars
+          </Link>
+        </li>
+        <li className="px-4 cursor-pointer   font-semibold   transition-all py-3 text-black flex items-center hover:bg-primary hover:text-white">
+          <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
+          <Link to="/service_request" className="text-lg capitalize">
+            Service Request
+          </Link>
+        </li>
+        <li className="px-4 cursor-pointer   font-semibold   transition-all py-3 text-black flex items-center hover:bg-primary hover:text-white">
+          <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
+          <Link to="/garage" className="text-lg capitalize">
+            Garage
+          </Link>
+        </li>
+        <li className="px-4 cursor-pointer   font-semibold   transition-all py-3 text-black flex items-center hover:bg-primary hover:text-white">
+          <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
+          <Link to="/home_banner" className="text-lg capitalize">
+            Home Banner
           </Link>
         </li>
       </ul>

@@ -4,34 +4,33 @@ import Button from "../../components/Button";
 import axios from "axios";
 import { Base_url } from "../../utils/Base_url";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
-import { FaEye } from "react-icons/fa";
+import UpdatedServices from "./UpdateService";
 import { toast } from "react-toastify";
-const Cars = () => {
+const ServiceProvider = () => {
   const [users, setUsers] = useState([]);
   const [activeCars, setActiveCards] = useState([]);
+  const [singleData, setSingleData] = useState({});
+  console.log(users, "dfffffffffffffffffff");
 
   useEffect(() => {
     axios
-      .post(`${Base_url}/admin/all-cars-by-status?status=pending`)
+      .get(`${Base_url}/admin/all-user`)
       .then((res) => {
-        console.log(res);
-
-        setUsers(res.data);
+        const usersData = res?.data?.data || [];
+        const inactiveUsers = usersData.filter(
+          (user) =>
+            user.status === "inactive" &&
+            user.profileStatus === "serviceProvider"
+        );
+        const activeUsers = usersData.filter(
+          (user) =>
+            user.status === "active" && user.profileStatus === "serviceProvider"
+        );
+        setUsers(inactiveUsers);
+        setActiveCards(activeUsers);
       })
       .catch((error) => {
-        console.log(error);
-      });
-
-    axios
-      .post(`${Base_url}/admin/all-cars-by-status?status=active`)
-      .then((res) => {
-        console.log(res, "active cars");
-
-        setActiveCards(res.data);
-      })
-      .catch((error) => {
-        console.log(error);
+        console.error(error);
       });
   }, []);
 
@@ -49,33 +48,32 @@ const Cars = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`${Base_url}/admin/delete-car/${id}`)
+          .delete(`${Base_url}/admin/delete-plan/${id}`)
           .then((res) => {
             console.log(res);
             if (res.status === 200) {
               Swal.fire("Deleted!", "Your file has been deleted.", "success");
 
               axios
-              .post(`${Base_url}/admin/all-cars-by-status?status=pending`)
-              .then((res) => {
-                console.log(res);
-        
-                setUsers(res.data);
-              })
-              .catch((error) => {
-                console.log(error);
-              });
-        
-            axios
-              .post(`${Base_url}/admin/all-cars-by-status?status=active`)
-              .then((res) => {
-                console.log(res, "active cars");
-        
-                setActiveCards(res.data);
-              })
-              .catch((error) => {
-                console.log(error);
-              });
+                .get(`${Base_url}/admin/all-user`)
+                .then((res) => {
+                  const usersData = res?.data?.data || [];
+                  const inactiveUsers = usersData.filter(
+                    (user) =>
+                      user.status === "inactive" &&
+                      user.profileStatus === "serviceProvider"
+                  );
+                  const activeUsers = usersData.filter(
+                    (user) =>
+                      user.status === "active" &&
+                      user.profileStatus === "serviceProvider"
+                  );
+                  setUsers(inactiveUsers);
+                  setActiveCards(activeUsers);
+                })
+                .catch((error) => {
+                  console.error(error);
+                });
             }
           })
           .catch((error) => {
@@ -86,39 +84,98 @@ const Cars = () => {
   };
 
   const [carStatus, setCarStatus] = useState("pending");
+  const [saveData, setSaveData] = useState({});
 
-  const UpdateStatus = (id, newStatus) => {
+  console.log(saveData);
+
+  const UpdateStatus = async (id, newStatus) => {
     const params = {
       status: newStatus,
     };
-    axios
-      .patch(`${Base_url}/admin/update-car-status/${id}`, params)
+    await axios
+      .patch(`${Base_url}/user/edit-profile/${id}`, params)
       .then((res) => {
         console.log(res);
 
         if (res.status === 200) {
-          toast.success(res.data.message);
+          toast.success(res.data?.message);
 
           axios
-            .post(`${Base_url}/admin/all-cars-by-status?status=pending`)
+            .get(`${Base_url}/admin/all-user`)
             .then((res) => {
-              console.log(res);
-
-              setUsers(res.data);
+              const usersData = res?.data?.data || [];
+              const inactiveUsers = usersData.filter(
+                (user) =>
+                  user.status === "inactive" &&
+                  user.profileStatus === "serviceProvider"
+              );
+              const activeUsers = usersData.filter(
+                (user) =>
+                  user.status === "active" &&
+                  user.profileStatus === "serviceProvider"
+              );
+              setUsers(inactiveUsers);
+              setActiveCards(activeUsers);
             })
             .catch((error) => {
-              console.log(error);
+              console.error(error);
             });
+        }
+      })
+      .catch((error) => {
+        toast.error(error);
+      });
+  };
 
+  const UpdateStatusApproved = (id, newStatus) => {
+    const params = {
+      dealerId: id,
+    };
+    axios
+      .post(`${Base_url}/admin/active-dealer`, params)
+      .then((res) => {
+        console.log(res);
+
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        const raw = JSON.stringify({
+          email: saveData?.email,
+          password: saveData?.password,
+        });
+
+        const requestOptions = {
+          method: "POST",
+          headers: myHeaders,
+          body: raw,
+          redirect: "follow",
+        };
+
+        fetch(`${Base_url}/admin/send-email`, requestOptions)
+          .then((response) => response.text())
+          .then((result) => console.log(result))
+          .catch((error) => console.error(error));
+
+        if (res.status === 200) {
           axios
-            .post(`${Base_url}/admin/all-cars-by-status?status=active`)
+            .get(`${Base_url}/admin/all-user`)
             .then((res) => {
-              console.log(res, "active cars");
-
-              setActiveCards(res.data);
+              const usersData = res?.data?.data || [];
+              const inactiveUsers = usersData.filter(
+                (user) =>
+                  user.status === "inactive" &&
+                  user.profileStatus === "serviceProvider"
+              );
+              const activeUsers = usersData.filter(
+                (user) =>
+                  user.status === "active" &&
+                  user.profileStatus === "serviceProvider"
+              );
+              setUsers(inactiveUsers);
+              setActiveCards(activeUsers);
             })
             .catch((error) => {
-              console.log(error);
+              console.error(error);
             });
         }
       })
@@ -128,27 +185,10 @@ const Cars = () => {
   };
 
 
-  const  UpdateRefresh =  () =>{
+  
 
-    axios.patch(`${Base_url}/admin/allow-refresh`).then((res)=>{
 
-      console.log(res);
-   
-      if(res.data.success===true){
-        toast.success(res.data.message)
-      }else{
-        toast.error(res.data.message)
-      }
-
-      
-
-      
-    }).catch((error)=>{
-      console.log(error);
-      
-    })
-
-  }
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const renderTable = (data) => (
     <section className="mb-20 mt-7 text-gray-800">
@@ -172,39 +212,26 @@ const Cars = () => {
                       >
                         Name
                       </th>
-                      <th
-                        scope="col"
-                        className="text-sm  text-white   font-bold px-6 py-4"
-                      >
-                        Image
-                      </th>
 
                       <th
                         scope="col"
                         className=" text-sm text-white  font-bold px-6 py-4"
                       >
-                        Make
+                        Email
                       </th>
 
                       <th
                         scope="col"
                         className="text-sm  text-white   font-bold px-6 py-4"
                       >
-                        Price Range
+                        Phone
                       </th>
 
                       <th
                         scope="col"
                         className="text-sm  text-white   font-bold px-6 py-4"
                       >
-                        Model
-                      </th>
-
-                      <th
-                        scope="col"
-                        className="text-sm  text-white   font-bold px-6 py-4"
-                      >
-                        Vehicle Category
+                        Password
                       </th>
 
                       <th
@@ -244,37 +271,23 @@ const Cars = () => {
                             </th>
                             <td className="align-middle text-sm font-normal px-6 py-4 whitespace-nowrap  text-center">
                               <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                {item?.title}
-                              </span>
-                            </td>
-                            <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
-                              <div className=" w-14 h-14 rounded-lg overflow-hidden">
-                                <img
-                                  src={item?.car_images[0]}
-                                  className=" w-full h-full"
-                                  alt=""
-                                />
-                              </div>
-                            </td>
-                            <td className="text-sm font-normal text-center px-6 py-4 whitespace-nowrap">
-                              <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                {item?.make}
-                              </span>
-                            </td>
-                            <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
-                              <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
-                                {item?.price_range}
-                              </span>
-                            </td>
-                            <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
-                              <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
-                                {item?.model}
+                                {`${item?.username}`}
                               </span>
                             </td>
 
+                            <td className="text-sm font-normal text-center px-6 py-4 whitespace-nowrap">
+                              <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
+                                {item?.email}
+                              </span>
+                            </td>
                             <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
                               <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
-                                {item?.vehicle_category}
+                                {item?.phone}
+                              </span>
+                            </td>
+                            <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
+                              <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
+                                {item?.password}
                               </span>
                             </td>
 
@@ -283,44 +296,42 @@ const Cars = () => {
                                 {item?.status}
                               </span>
                             </td>
-
                             <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
                               <select
-                                value={item.status || "pending"}
+                                value={item.status}
                                 onChange={(e) => {
                                   const newStatus = e.target.value;
-                                  UpdateStatus(item._id, newStatus);
+
+                                  // Call the appropriate function based on the new status
+                                  if (newStatus === "active") {
+                                    UpdateStatusApproved(item._id, newStatus); // Activate
+                                  } else {
+                                    UpdateStatus(item._id, newStatus); // Deactivate
+                                  }
+
+                                  setSaveData(item); // Save the current item data
                                 }}
                                 className="px-3 py-2 bg-gray-200 rounded-lg shadow-md"
                               >
-                                <option value={"pending"}>Pending</option>
-                                <option value={"active"}>Active</option>
-                                <option value={"reject"}>Reject</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="active">Active</option>
                               </select>
                             </td>
 
-                            <td className="align-middle  text-sm font-normal  py-4 whitespace-nowrap">
+                            <td className="align-middle  text-sm font-normal px-6 py-4 whitespace-nowrap">
                               <div className=" flex items-center justify-center gap-2">
-                                <Link
-                                  to={`http://44.242.210.218:3000/car_details_page/${item?._id}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <FaEye
-                                    color=""
-                                    size={30}
-                                    className=" text-secondary"
-                                  />
-                                </Link>
-                                <Link
-                                  to={`/update_car/${item?._id}`}
+                                <div
                                   className=" cursor-pointer"
+                                  onClick={() => {
+                                    setIsModalOpen(true);
+                                    setSingleData(item);
+                                  }}
                                 >
                                   <img
                                     src={require("../../assets/image/edit.png")}
                                   />
-                                </Link>
-                                <div className=" cursor-pointer">
+                                </div>
+                                <div>
                                   <img
                                     onClick={() => removeFunction(item._id)}
                                     src={require("../../assets/image/del.png")}
@@ -347,17 +358,19 @@ const Cars = () => {
     <Wrapper>
       <div className=" flex   justify-between items-center">
         <div>
-          <h2 className="main_title"> Cars</h2>
+          <h2 className="main_title"> Service Provider</h2>
         </div>
 
+        <UpdatedServices
+          setIsModalOpen={setIsModalOpen}
+          setUsers={setUsers}
+          setActiveCards={setActiveCards}
+          getData={singleData}
+          isModalOpen={isModalOpen}
+        />
+
         <div className=" flex gap-3">
-        <div>
-            <Button
-              onClick={()=>UpdateRefresh()}
-              label={"Refresh"}
-              className={" bg-primary"}
-            />
-          </div>
+          
           <div>
             <Button
               onClick={() => setCarStatus("pending")}
@@ -378,9 +391,10 @@ const Cars = () => {
           </div>
         </div>
       </div>
+
       {carStatus === "pending" ? renderTable(users) : renderTable(activeCars)}
     </Wrapper>
   );
 };
 
-export default Cars;
+export default ServiceProvider;
