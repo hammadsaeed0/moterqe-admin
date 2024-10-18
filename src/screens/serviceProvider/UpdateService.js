@@ -18,14 +18,51 @@ const UpdateServices = ({
 
   const [loading, setLoading] = useState(false);
 
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  console.log(selectedImage);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+
   const bannerSubmit = async (values) => {
     setLoading(true);
+
+    
+
+    // let profilephoto = " ";
+
+    // try {
+    //   let param = new FormData();
+
+    //   param.append("images", selectedImage);
+
+    //   profilephoto = await axios.post(`https://file-upload-ashen.vercel.app/api/upload`, param);
+
+    //   console.log(profilephoto, "=====profile photo===");
+    //   // setReport(profilephoto?.data?.data[0]);
+
+    //   localStorage.setItem("reacts", profilephoto?.data?.data[0]);
+
+    // } catch (error) {
+    //   console.log(error);
+    // }
 
     const params = {
       username: values.username.value,
       email: values.email.value,
       phone: values.phone.value,
       password: values.password.value,
+      // image:profilephoto?.data?.data[0],
     };
     await axios
       .patch(`${Base_url}/user/edit-profile/${getData?._id}`, params)
@@ -80,6 +117,46 @@ const UpdateServices = ({
           </div>
           <hr />
           <div className=" p-5">
+          {/* <div className=" text-center my-2">
+              {selectedImage ? (
+                <img
+                  src={selectedImage}
+                  className="mx-auto w-28  h-28  rounded-full"
+                  alt=""
+                />
+              ) : (
+                <>
+                   {getData?.image?
+                <img
+                src={getData?.image}
+                className="mx-auto  w-28  h-28  rounded-full"
+                alt=""
+              />:<img
+              src={require("../../assets/image/profile.jpg")}
+              className="mx-auto  w-28  h-28  rounded-full"
+              alt=""
+            />
+                }
+                </>
+              )}
+
+              <div className="  my-5">
+                <label
+                  htmlFor="fileInput"
+                  className="px-12 py-2 bg-white  font-semibold text-primary border   border-gray-200 rounded-lg cursor-pointer"
+                >
+                  Browse File
+                </label>
+                <input
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  name="profileImage"
+                  type="file"
+                  id="fileInput"
+                  className="hidden"
+                />
+              </div>
+            </div> */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();

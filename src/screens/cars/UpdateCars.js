@@ -148,7 +148,8 @@ const UpdateCars = () => {
 
   const [selectedImages, setSelectedImages] = useState([]);
   const [carImages, setCarImages] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(singleNewListing?.inspection_report || "");
+  const [selectedImage, setSelectedImage] = useState([]);  
+  console.log(selectedImage)
   useEffect(() => {
     if (singleNewListing?.car_images) {
       setCarImages(singleNewListing.car_images);
@@ -157,7 +158,7 @@ const UpdateCars = () => {
       setSelectedImage(singleNewListing.inspection_report);
     }
   }, [singleNewListing]);
-
+  
   const handleCarImageChange = (index, e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
@@ -167,72 +168,70 @@ const UpdateCars = () => {
         newImages[index] = file; // Store the file
         setSelectedImages(newImages);
         const updatedCarImages = [...carImages];
-        updatedCarImages[index] = reader.result;
+        updatedCarImages[index] = reader.result; // Preview the image
         setCarImages(updatedCarImages);
       };
       reader.readAsDataURL(file);
     }
   };
-
+  
   const handleRemoveCarImage = (index) => {
     const updatedCarImages = [...carImages];
     updatedCarImages.splice(index, 1);
     setCarImages(updatedCarImages);
-    
+  
     const newImages = [...selectedImages];
     newImages.splice(index, 1);
     setSelectedImages(newImages);
   };
-
+  
   const handleInspectionImageChange = (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
-
+  
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = () => {
-        setSelectedImage(reader.result);
+        setSelectedImage(reader.result); // Update preview
       };
       reader.readAsDataURL(file);
     }
   };
-
-  const uploadCarImages = async (selectedImages) => {
+  
+  const uploadCarImages = async (images) => {
     const uploadedImages = await Promise.all(
-      selectedImages.map(async (image) => {
+      images.map(async (image) => {
         if (image) {
           const param = new FormData();
           param.append("images", image);
-
-          const response = await axios.post(`https://file-upload-ashen.vercel.app/api/upload`, param);
-          return response.data.data[0]; // Return uploaded image URL
+  
+          const response = await axios.post(`http://35.88.137.61/api/api/upload`, param);
+          console.log(response); // Return uploaded image URL
+          return response.data.data[0];
+          
         }
         return null;
       })
     );
     return uploadedImages.filter((img) => img); // Filter out null values
   };
-
+  
   const uploadImage = async (image) => {
     if (!image) return null; // Return null if no image to upload
-
+  
     const param = new FormData();
     param.append("images", image);
-
-    const response = await axios.post(`https://file-upload-ashen.vercel.app/api/upload`, param);
+  
+    const response = await axios.post(`http://35.88.137.61/api/api/upload`, param);
     return response.data.data[0]; // Return uploaded image URL
   };
 
+  
   const handlerSubmit = async (e) => {
     e.preventDefault();
-
     setLoader(true);
-
+  
     try {
-      const uploadedCarImages = await uploadCarImages(selectedImages);
-      const uploadedInspectionImage = selectedImage
-        ? await uploadImage(selectedImage)
-        : null;
       const params = {
         ...(state.title && { title: state.title }),
         ...(state.type_of_ad && { type_of_ad: state.type_of_ad }),
@@ -240,93 +239,71 @@ const UpdateCars = () => {
         ...(state.make && { make: state.make }),
         ...(state.model && { model: state.model }),
         ...(state.year && { year: 2024 }),
-        ...(state.vehicle_condition && {
-          vehicle_condition: state.vehicle_condition,
-        }),
+        ...(state.vehicle_condition && { vehicle_condition: state.vehicle_condition }),
         ...(state.mileage && { mileage: Number(state.mileage) }),
-        ...(state.vehicle_category && {
-          vehicle_category: state.vehicle_category,
-        }),
+        ...(state.vehicle_category && { vehicle_category: state.vehicle_category }),
         ...(state.specifications && { specifications: state.specifications }),
         ...(state.cylinder && { cylinder: Number(state.cylinder) }),
         ...(state.engine_size && { engine_size: state.engine_size }),
         ...(state.wheel_drive && { wheel_drive: state.wheel_drive }),
         ...(state.gear_box && { gear_box: state.gear_box }),
-        ...(state.exterior_colour && {
-          exterior_colour: state.exterior_colour,
-        }),
-        ...(state.interior_colour && {
-          interior_colour: state.interior_colour,
-        }),
+        ...(state.exterior_colour && { exterior_colour: state.exterior_colour }),
+        ...(state.interior_colour && { interior_colour: state.interior_colour }),
         ...(state.fuel_type && { fuel_type: state.fuel_type }),
-        ...(state.registration_date && {
-          registration_date: state.registration_date,
-        }),
-        ...(state.warranty !== undefined && {
-          warranty: state.warranty === "true",
-        }),
+        ...(state.registration_date && { registration_date: state.registration_date }),
+        ...(state.warranty !== undefined && { warranty: state.warranty === "true" }),
         ...(state.warranty_date && { warranty_date: state.warranty_date }),
-        ...(state.inspected !== undefined && {
-          inspected: state.inspected === "true",
-        }), // Handle boolean
-        // ...(uploadedInspectionImage && {
-        //   inspection_report: uploadedInspectionImage,
-        // }),
+        ...(state.inspected !== undefined && { inspected: state.inspected === "true" }),
         ...(state.price_QR && { price_QR: Number(state.price_QR) }),
         ...(state.price_range && { price_range: state.price_range }),
-        ...(state.negotiable !== undefined && {
-          negotiable: state.negotiable === "true",
-        }), // Handle boolean
+        ...(state.negotiable !== undefined && { negotiable: state.negotiable === "true" }),
         ...(state.description && { description: state.description }),
         ...(state.longitude && { longitude: state.longitude }),
         ...(state.latitude && { latitude: state.latitude }),
         ...(state.engine_oil && { engine_oil: state.engine_oil }),
-        ...(state.engine_oil_filter && {
-          engine_oil_filter: state.engine_oil_filter,
-        }),
+        ...(state.engine_oil_filter && { engine_oil_filter: state.engine_oil_filter }),
         ...(state.gearbox_oil && { gearbox_oil: state.gearbox_oil }),
         ...(state.ac_filter && { ac_filter: state.ac_filter }),
         ...(state.air_filter && { air_filter: state.air_filter }),
         ...(state.fuel_filter && { fuel_filter: state.fuel_filter }),
         ...(state.spark_plugs && { spark_plugs: state.spark_plugs }),
-        ...(state.front_brake_pads && {
-          front_brake_pads: state.front_brake_pads,
-        }),
-        ...(state.rear_brake_pads && {
-          rear_brake_pads: state.rear_brake_pads,
-        }),
-        ...(state.front_brake_discs && {
-          front_brake_discs: state.front_brake_discs,
-        }),
-        ...(state.rear_brake_discs && {
-          rear_brake_discs: state.rear_brake_discs,
-        }),
+        ...(state.front_brake_pads && { front_brake_pads: state.front_brake_pads }),
+        ...(state.rear_brake_pads && { rear_brake_pads: state.rear_brake_pads }),
+        ...(state.front_brake_discs && { front_brake_discs: state.front_brake_discs }),
+        ...(state.rear_brake_discs && { rear_brake_discs: state.rear_brake_discs }),
         ...(state.battery && { battery: state.battery }),
-        ...(state.front_tire_size && {
-          front_tire_size: state.front_tire_size,
-        }),
-        ...(state.front_tire_price && {
-          front_tire_price: Number(state.front_tire_price),
-        }),
+        ...(state.front_tire_size && { front_tire_size: state.front_tire_size }),
+        ...(state.front_tire_price && { front_tire_price: Number(state.front_tire_price) }),
         ...(state.rear_tire_size && { rear_tire_size: state.rear_tire_size }),
-        ...(state.rear_tire_price && {
-          rear_tire_price: Number(state.rear_tire_price),
-        }),
+        ...(state.rear_tire_price && { rear_tire_price: Number(state.rear_tire_price) }),
         ...(state.name && { name: state.name }),
         ...(state.mobile_no && { mobile_no: state.mobile_no }),
         ...(state.whatsapp_no && { whatsapp_no: state.whatsapp_no }),
         ...(state.email_address && { email_address: state.email_address }),
-        // ...(uploadedCarImages && { car_images: uploadedCarImages }),
       };
-
-
-
-
+  
+      // Only add car_images if they were uploaded
+      if (selectedImages && selectedImages.length > 0) {
+        const uploadedCarImages = await uploadCarImages(selectedImages);
+        if (uploadedCarImages.length > 0) {
+          params.car_images = uploadedCarImages; 
+        }
+      }
+  
+      if (selectedImage && selectedImage instanceof File) {
+        const uploadedInspectionImage = await uploadImage(selectedImage);
+        console.log("Uploaded Inspection Image:", uploadedInspectionImage); // Debugging line
+  
+        if (uploadedInspectionImage) {
+          params.inspection_report = uploadedInspectionImage;
+        }
+      }
+  
       const res = await axios.post(`${Base_url}/user/edit-car/${id}`, params);
-
+  
       if (res.data.success) {
-        toast.success("Car listing updated successfully!");
-        navigate(`/cars`);
+        // toast.success("Car listing updated successfully!");
+        // navigate(`/cars`);
       } else {
         toast.error(res?.data?.message);
       }
@@ -563,7 +540,6 @@ const UpdateCars = () => {
               }
               name={"vehicle_condition"}
               className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
-              
             >
               <option value={""} selected>
                 Select Vehicle Condition
@@ -582,7 +558,6 @@ const UpdateCars = () => {
               className={"  border w-full  p-2 bg-[#FEFBFB]"}
               placeholder={"Enter Mileage"}
               label={"Mileage"}
-              
               defaultValue={singleNewListing?.mileage}
             />
           </div>
@@ -599,7 +574,6 @@ const UpdateCars = () => {
               }
               name={"vehicle_category"}
               className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
-              
             >
               <option value={""} selected>
                 Select Vehicle Category
@@ -763,8 +737,6 @@ const UpdateCars = () => {
               }
               name={"interior_colour"}
               className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
-              
-              
             >
               <option value={""} selected>
                 Select Interior Colour

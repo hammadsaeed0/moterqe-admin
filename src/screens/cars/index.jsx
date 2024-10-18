@@ -302,7 +302,7 @@ const Cars = () => {
                             <td className="align-middle  text-sm font-normal  py-4 whitespace-nowrap">
                               <div className=" flex items-center justify-center gap-2">
                                 <Link
-                                  to={`http://44.242.210.218:3000/car_details_page/${item?._id}`}
+                                  to={`http://18.237.245.227:3000/car_details_page/${item?._id}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >

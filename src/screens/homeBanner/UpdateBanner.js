@@ -43,7 +43,7 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
         let param = new FormData();
         param.append("images", selectImages);
 
-        const uploadResponse = await axios.post(`https://file-upload-ashen.vercel.app/api/upload`, param);
+        const uploadResponse = await axios.post(`http://35.88.137.61/api/api/upload`, param);
         
         if (uploadResponse?.status === 200) {
           profilephoto = uploadResponse?.data?.data[0];

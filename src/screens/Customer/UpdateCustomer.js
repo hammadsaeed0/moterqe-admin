@@ -6,6 +6,7 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Modal from "../../components/modal";
 import { MdClose } from "react-icons/md";
+
 const UpdateCustomers = ({
   isModalOpen,
   setIsModalOpen,
@@ -13,120 +14,187 @@ const UpdateCustomers = ({
   setUsers,
   getData,
 }) => {
-  console.log(getData);
-
   const [loading, setLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setSelectedImage(URL.createObjectURL(file)); // Preview the image
+      setImageFile(file); // Store the file for upload
+    }
+  };
 
   const bannerSubmit = async (values) => {
     setLoading(true);
-
+    let profilePhotoUrl = "";
+  
+    // Check if an image file was selected
+    if (imageFile) {
+      try {
+        const param = new FormData();
+        param.append("images", imageFile);
+  
+        const profilePhotoResponse = await axios.post(
+          `http://35.88.137.61/api/api/upload`,
+          param
+        );
+  
+        if (profilePhotoResponse?.data?.data[0]) {
+          profilePhotoUrl = profilePhotoResponse.data.data[0]; // Get the uploaded image URL
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Image upload failed");
+        setLoading(false);
+        return;
+      }
+    }
+  
     const params = {
       username: values.username.value,
       email: values.email.value,
       phone: values.phone.value,
       password: values.password.value,
+      ...(profilePhotoUrl && { image: profilePhotoUrl }),
     };
-    await axios
-      .patch(`${Base_url}/user/edit-profile/${getData?._id}`, params)
-      .then((res) => {
-        console.log(res);
-
-        if (res.status === 200) {
-          toast.success(res.data?.message);
-          setIsModalOpen(false);
-          setLoading(false);
-          axios
-          .get(`${Base_url}/admin/all-user`)
-          .then((res) => {
-            console.log(res);
-    
-            const userData = res?.data?.data?.filter(
-              (item) => item?.profileStatus === "privateSeller"
-            );
-    
-            setUsers(userData);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-        }
-      })
-      .catch((error) => {
-        toast.error(error);
-
+  
+    try {
+      const res = await axios.patch(`${Base_url}/user/edit-profile/${getData?._id}`, params);
+      if (res.status === 200) {
+        toast.success(res.data?.message);
+        setIsModalOpen(false);
         setLoading(false);
-      });
+  
+        axios
+        .get(`${Base_url}/admin/all-user`)
+        .then((res) => {
+          console.log(res);
+  
+          const userData = res?.data?.data?.filter(
+            (item) => item?.profileStatus === "privateSeller"
+          );
+  
+          setUsers(userData);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      }
+    } catch (error) {
+      toast.error(error.message);
+      setLoading(false);
+    }
   };
+  
 
   return (
     <div>
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        {/* Modal Content */}
         <div className="">
-          <div className=" p-3 flex justify-between items-center">
+          <div className="p-3 flex justify-between items-center">
             <div></div>
-            <h1 className="capitalize h4 font-semibold">
-              Update Private Seller
-            </h1>
+            <h1 className="capitalize h4 font-semibold">Update Private Seller</h1>
             <MdClose onClick={() => setIsModalOpen(false)} size={25} />
           </div>
           <hr />
-          <div className=" p-5">
+          <div className="p-5">
+            <div className="text-center my-2">
+              {selectedImage ? (
+                <img
+                  src={selectedImage}
+                  className="mx-auto w-28 h-28 rounded-full"
+                  alt=""
+                />
+              ) : (
+                <>
+                  {getData?.image ? (
+                    <img
+                      src={getData?.image}
+                      className="mx-auto w-28 h-28 rounded-full"
+                      alt=""
+                    />
+                  ) : (
+                    <img
+                      src={require("../../assets/image/profile.jpg")}
+                      className="mx-auto w-28 h-28 rounded-full"
+                      alt=""
+                    />
+                  )}
+                </>
+              )}
+              <div className="my-5">
+                <label
+                  htmlFor="fileInput"
+                  className="px-12 py-2 bg-white font-semibold text-primary border border-gray-200 rounded-lg cursor-pointer"
+                >
+                  Browse File
+                </label>
+                <input
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  name="profileImage"
+                  type="file"
+                  id="fileInput"
+                  className="hidden"
+                />
+              </div>
+            </div>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 bannerSubmit(e.target);
               }}
             >
-              <div className=" flex gap-5 flex-wrap">
-                <div className=" md:w-[48%] w-[100%]">
+              <div className="flex gap-5 flex-wrap">
+                <div className="md:w-[48%] w-[100%]">
                   <Input
                     label={"Username"}
                     placeholder={""}
                     name={"username"}
-                    className={"border  w-full  py-3"}
+                    className={"border w-full py-3"}
                     defaultValue={getData?.username}
                   />
                 </div>
-                <div className=" md:w-[48%] w-[100%]">
+                <div className="md:w-[48%] w-[100%]">
                   <Input
                     label={"Email"}
                     placeholder={""}
                     name={"email"}
-                    className={"border  w-full  py-3"}
+                    className={"border w-full py-3"}
                     defaultValue={getData?.email}
                   />
                 </div>
-
-                <div className=" md:w-[48%] w-[100%]">
+                <div className="md:w-[48%] w-[100%]">
                   <Input
                     label={"Phone"}
                     placeholder={""}
                     name={"phone"}
-                    className={"border  w-full  py-3"}
+                    className={"border w-full py-3"}
                     defaultValue={getData?.phone}
                   />
                 </div>
-                <div className=" md:w-[48%] w-[100%]">
+                <div className="md:w-[48%] w-[100%]">
                   <Input
                     label={"Password"}
                     placeholder={""}
                     name={"password"}
-                    className={"border  w-full  py-3"}
+                    className={"border w-full py-3"}
                     defaultValue={getData?.password}
                   />
                 </div>
               </div>
-              {loading === true ? (
+              {loading ? (
                 <button
                   disabled
                   type="button"
-                  class="w-full h-11 bg-primary border-none outline-none  rounded-lg mt-4 shadow-sm cursor-pointer text-lg text-white font-semibold"
+                  className="w-full h-11 bg-primary border-none outline-none rounded-lg mt-4 shadow-sm cursor-pointer text-lg text-white font-semibold"
                 >
                   <svg
                     aria-hidden="true"
                     role="status"
-                    class="inline w-4 h-4 me-3 text-white animate-spin"
+                    className="inline w-4 h-4 me-3 text-white animate-spin"
                     viewBox="0 0 100 101"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -146,9 +214,7 @@ const UpdateCustomers = ({
                 <Button
                   label={"Update"}
                   type={"submit"}
-                  className={
-                    "   bg-primary mt-3 uppercase text-white py-2  w-full"
-                  }
+                  className={"bg-primary mt-3 uppercase text-white py-2 w-full"}
                 />
               )}
             </form>

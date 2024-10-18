@@ -135,29 +135,8 @@ const UpdateGarage = () => {
   };
 
   const [selectedImage, setSelectedImage] = useState(null);
-
-  const [loading, setLoader] = useState(false);
-
-  console.log(selectedImage);
-
-  const [selectImages, setSelectedImages] = useState([]);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedImages(file);
-
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setSelectedImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const [report, setReport] = useState(" ");
-
-  console.log(report);
+  const [loading, setLoading] = useState(false);
+  const [selectedImages, setSelectedImages] = useState(null); // Adjusted to hold a single file
   const [state, setState] = useState({
     serviceName: "",
     listingType: "",
@@ -168,41 +147,56 @@ const UpdateGarage = () => {
     workingDays: "",
     workingHours: "",
     mobileGarage: "",
-    pickupAndDeliveryService: "",
+    pickupDelivery: "",
     availableDays: "",
-    availableDatesFrom: "",
+    availableFromDate: "",
     about: "",
     category: "",
     ownerName: "",
     whatsappNumber: "",
     mobileNumber: "",
     emailAddress: "",
-    // longitude: currentLocation.lng,
-    // latitude: currentLocation.lat,
   });
-
-  console.log(state);
-
-  const handleInputs = (e) => {
-    setState({ ...state, [e.target.name]: e.target.value });
-  };
 
   const navigate = useNavigate();
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedImages(file); // Store the single image file
+
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleInputs = (e) => {
+    const { name, value } = e.target;
+    setState((prevState) => ({ ...prevState, [name]: value }));
+  };
 
   const uploadImage = async (imageFile, url) => {
     const formData = new FormData();
-    formData.append("images", selectImages);
+    formData.append("images", imageFile); // Append the single image file
     const response = await axios.post(url, formData);
-    return response.data.data[0]; 
+    return response.data.data[0];
   };
 
   const handlerSubmit = async (e) => {
     e.preventDefault();
-    setLoader(true)
-
+    setLoading(true);
+  
     try {
-      const uploadedImage = selectedImage ? await uploadImage(selectImages, "https://file-upload-ashen.vercel.app/api/upload") : singleNewGarage?.logo;
+      let uploadedImage = null;
+  
+      // Upload the new image if one is selected
+      if (selectedImages) {
+        uploadedImage = await uploadImage(selectedImages, "http://35.88.137.61/api/api/upload");
+      }
+  
       const params = {
         ...(state.listingType && { listingType: state.listingType }),
         ...(state.garageName && { garageName: state.garageName }),
@@ -211,13 +205,9 @@ const UpdateGarage = () => {
         ...(state.workingHours && { workingHours: state.workingHours }),
         ...(state.mobileGarage && { mobileNumber: state.mobileGarage }),
         ...(state.pickupDelivery && { pickupDelivery: state.pickupDelivery }),
-        ...(state.availableDays && {
-          availableDatesInCalendar: state.availableDays,
-        }),
-        ...(state.availableFromDate && {
-          availableFromDate: state.availableFromDate,
-        }),
-        ...(uploadedImage && { logo: uploadedImage}),
+        ...(state.availableDays && { availableDatesInCalendar: state.availableDays }),
+        ...(state.availableFromDate && { availableFromDate: state.availableFromDate }),
+        ...(uploadedImage && { logo: uploadedImage }),
         ...(state.about && { aboutLocation: state.about }),
         location: "Example City",
         ...(state.category && { category: state.category }),
@@ -226,26 +216,24 @@ const UpdateGarage = () => {
         ...(state.mobileNumber && { mobileNumber: state.mobileNumber }),
         ...(state.whatsappNumber && { whatsappNumber: state.whatsappNumber }),
         ...(state.emailAddress && { emailAddress: state.emailAddress }),
-        status: "active",
       };
-
+  
       const res = await axios.patch(`${Base_url}/user/garage/${id}`, params);
-
+  
       if (res.data.success) {
         toast.success("Garage updated successfully!");
         navigate(`/garage`);
-        setLoader(false)
       } else {
         toast.error(res?.data?.message);
-        setLoader(false)
       }
     } catch (error) {
       console.error("Form submission failed:", error);
       toast.error(error.message);
     } finally {
-      setLoader(false);
+      setLoading(false);
     }
   };
+  
 
   return (
     <Wrapper>
