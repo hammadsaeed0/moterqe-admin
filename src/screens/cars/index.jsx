@@ -7,9 +7,12 @@ import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import { toast } from "react-toastify";
+import ImageUploadModal from "./ImageUploadModal";
 const Cars = () => {
   const [users, setUsers] = useState([]);
   const [activeCars, setActiveCards] = useState([]);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [view, setView] = useState({});
 
   useEffect(() => {
     axios
@@ -218,6 +221,13 @@ const Cars = () => {
                         scope="col"
                         className="text-sm  text-white   font-bold px-6 py-4"
                       >
+                        360 Image
+                      </th>
+
+                      <th
+                        scope="col"
+                        className="text-sm  text-white   font-bold px-6 py-4"
+                      >
                         Update Status
                       </th>
 
@@ -285,6 +295,15 @@ const Cars = () => {
                             </td>
 
                             <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
+                              <span onClick={()=>{
+                                setIsUpdateOpen(true);
+                                setView(item)
+                              }} className=" text-sm text-white bg-primary   py-1.5 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-lg">
+                                360 Upload
+                              </span>
+                            </td>
+
+                            <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
                               <select
                                 value={item.status || "pending"}
                                 onChange={(e) => {
@@ -345,6 +364,8 @@ const Cars = () => {
 
   return (
     <Wrapper>
+
+      <ImageUploadModal isModalOpen={isUpdateOpen} setIsModalOpen={setIsUpdateOpen} setActiveCards={setActiveCards}  getData={view} />
       <div className=" flex   justify-between items-center">
         <div>
           <h2 className="main_title"> Cars</h2>

@@ -20,10 +20,16 @@ const Sidebar = ({ side, closeSidebar }) => {
       </div>
 
       <ul className="">
-        <li className="px-4 cursor-pointer  font-semibold  transition-all py-3 text-black flex items-center  hover:bg-primary hover:text-white">
+        {/* <li className="px-4 cursor-pointer  font-semibold  transition-all py-3 text-black flex items-center  hover:bg-primary hover:text-white">
           <i class="bi bi-grid-fill  mr-2 inline-block text-xl"></i>
           <Link to="/dashboard" className="text-lg capitalize">
             Dashboard
+          </Link>
+        </li> */}
+        <li className="px-4 cursor-pointer   font-semibold   transition-all py-3 text-black flex items-center hover:bg-primary hover:text-white">
+          <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
+          <Link to="/home_banner" className="text-lg capitalize">
+            Home Banner
           </Link>
         </li>
         <li className="px-4 cursor-pointer  font-semibold  transition-all py-3 text-black flex items-center  hover:bg-primary hover:text-white">
@@ -68,10 +74,11 @@ const Sidebar = ({ side, closeSidebar }) => {
             Garage
           </Link>
         </li>
+        
         <li className="px-4 cursor-pointer   font-semibold   transition-all py-3 text-black flex items-center hover:bg-primary hover:text-white">
           <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
-          <Link to="/home_banner" className="text-lg capitalize">
-            Home Banner
+          <Link to="/news" className="text-lg capitalize">
+             News
           </Link>
         </li>
       </ul>

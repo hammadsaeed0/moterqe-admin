@@ -17,6 +17,7 @@ import UpdateCars from "./screens/cars/UpdateCars";
 import Garage from "./screens/garage";
 import UpdateGarage from "./screens/garage/UpdateGarage";
 import HomeBanner from "./screens/homeBanner";
+import News from "./screens/news";
 function App() {
   return (
     <>
@@ -37,6 +38,8 @@ function App() {
           <Route path="/customers" element={<Customers />} />
           <Route path="/brands" element={<Brands />} />
           <Route path="/home_banner" element={<HomeBanner />} />
+          <Route path="/news" element={<News />} />
+          
           <Route path="/create_garage/:id" element={<CreateGarage />} />
         {/* </Route> */}
       </Routes>
