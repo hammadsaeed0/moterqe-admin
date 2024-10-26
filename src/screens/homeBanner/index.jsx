@@ -1,33 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../Wrapper";
-import Button from "../../components/Button";
 import axios from "axios";
 import { Base_url } from "../../utils/Base_url";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
 import UpdateBanner from "./UpdateBanner";
 const HomeBanner = () => {
   const [users, setUsers] = useState([]);
-  const [singleData, setSingleData] = useState({});
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-  const [isUpdateOpen2, setIsUpdateOpen2] = useState(false);
   const [singleUser, setSingleUser] = useState({});
-  const UpdateModal = () => {
-    setIsUpdateOpen(true);
-  };
-
-  const closeUpdateModal = () => {
-    setIsUpdateOpen(false);
-  };
-
-  const UpdateModal2 = () => {
-    setIsUpdateOpen2(true);
-  };
-
-  const closeUpdateModal2 = () => {
-    setIsUpdateOpen2(false);
-  };
-
+ 
   console.log(isUpdateOpen);
 
   const [deleteUser, setDeleteUser] = useState({});
@@ -124,12 +105,12 @@ const HomeBanner = () => {
                           Image
                         </th>
                         
-                        {/* <th
+                        <th
                           scope="col"
                           className="text-sm  text-white   font-bold px-6 py-4"
                         >
-                          Date
-                        </th> */}
+                          Url
+                        </th>
 
                         <th
                           scope="col"
@@ -157,11 +138,11 @@ const HomeBanner = () => {
                                 <img src={item?.imageUrl}   className=" w-20 h-20 rounded-md mx-auto" alt="" />
                                 </span>
                               </td>
-                              {/* <td className="text-sm font-normal text-center px-6 py-4 whitespace-nowrap">
+                              <td className="text-sm font-normal text-center px-6 py-4 whitespace-nowrap">
                                 <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                   34
+                                   {item?.redirectUrl}
                                 </span>
-                              </td> */}
+                              </td>
                           
                              
 

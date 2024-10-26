@@ -109,9 +109,9 @@ const UpdateCars = () => {
     interior_colour: "",
     fuel_type: "",
     registration_date: "",
-    warranty: "",
+    warranty:null,
     warranty_date: "",
-    inspected: "",
+    inspected:null,
     price_QR: "",
     price_range: "",
     negotiable: "",
@@ -251,9 +251,9 @@ const UpdateCars = () => {
         ...(state.interior_colour && { interior_colour: state.interior_colour }),
         ...(state.fuel_type && { fuel_type: state.fuel_type }),
         ...(state.registration_date && { registration_date: state.registration_date }),
-        ...(state.warranty !== undefined && { warranty: state.warranty === "true" }),
+        ...(state.warranty !== null && { warranty: state.warranty?state.warranty:singleNewListing?.warranty}),
         ...(state.warranty_date && { warranty_date: state.warranty_date }),
-        ...(state.inspected !== undefined && { inspected: state.inspected === "true" }),
+        ...(state.inspected !== null && { inspected: state.inspected? state.inspected:singleNewListing?.inspected}),
         ...(state.price_QR && { price_QR: Number(state.price_QR) }),
         ...(state.price_range && { price_range: state.price_range }),
         ...(state.negotiable !== undefined && { negotiable: state.negotiable === "true" }),
@@ -302,8 +302,8 @@ const UpdateCars = () => {
       const res = await axios.post(`${Base_url}/user/edit-car/${id}`, params);
   
       if (res.data.success) {
-        // toast.success("Car listing updated successfully!");
-        // navigate(`/cars`);
+        toast.success("Car listing updated successfully!");
+        navigate(`/cars`);
       } else {
         toast.error(res?.data?.message);
       }
@@ -784,7 +784,7 @@ const UpdateCars = () => {
             <select
               type={"text"}
               onChange={handleInputs}
-              value={state.warranty || singleNewListing?.warranty || null}
+              value={state.warranty || singleNewListing?.warranty }
               name={"warranty"}
               className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
             >
@@ -809,13 +809,13 @@ const UpdateCars = () => {
             </label>
             <select
               onChange={handleInputs}
-              value={state.inspected || singleNewListing?.inspected || null}
+              value={state.inspected || singleNewListing.inspected}
               name={"inspected"}
               className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
             >
-              <option value={""} selected>
+              {/* <option value={""} selected>
                 Select Inspected
-              </option>
+              </option> */}
               <option value={true}>Yes</option>
               <option value={false}>No</option>
             </select>

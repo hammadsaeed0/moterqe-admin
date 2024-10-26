@@ -7,28 +7,27 @@ import Button from "../../components/Button";
 import Modal from "../../components/modal";
 import { MdClose } from "react-icons/md";
 
-const AddNews = ({
-  isModalOpen,
-  setIsModalOpen,
-  closeModal,
-  setUsers,
-}) => {
+const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
   const [loading, setLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
+  const [additionalImages, setAdditionalImages] = useState([]);
+  const [imageFiles, setImageFiles] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setSelectedImage(URL.createObjectURL(file)); // Preview the image
-      setImageFile(file); // Store the file for upload
+  // Handle additional image selection
+  const handleAdditionalImagesChange = (e) => {
+    const files = Array.from(e.target.files);
+    const validImages = files.filter((file) => file.type.startsWith("image/"));
+    if (validImages.length > 0) {
+      const newImages = validImages.map((file) => URL.createObjectURL(file));
+      setAdditionalImages((prev) => [...prev, ...newImages]); // Preview additional images
+      setImageFiles((prev) => [...prev, ...validImages]); // Store additional images for upload
     } else {
-      toast.error("Please select a valid image file.");
+      toast.error("Please select valid image files.");
     }
   };
 
+  // Submit the form and upload images
   const bannerSubmit = async (e) => {
     e.preventDefault();
 
@@ -41,65 +40,63 @@ const AddNews = ({
       toast.error("Content is required.");
       return;
     }
-    if (!imageFile) {
-      toast.error("Image is required.");
+    if (imageFiles.length === 0) {
+      toast.error("At least one image is required.");
       return;
     }
 
     setLoading(true);
-    let profilePhotoUrl = "";
+    let additionalPhotoUrls = [];
 
-    // Upload image
+    // Prepare FormData for images
+    const formData = new FormData();
+    imageFiles.forEach((file) => {
+      formData.append("images", file); // Additional images
+    });
+
+    // Upload images
     try {
-      const param = new FormData();
-      param.append("images", imageFile);
+      const uploadResponse = await axios.post(`http://35.88.137.61/api/api/upload`, formData);
 
-      const profilePhotoResponse = await axios.post(
-        `http://35.88.137.61/api/api/upload`,
-        param
-      );
+      // Log the upload response to check its structure
+      console.log("Upload response:", uploadResponse);
 
-      if (profilePhotoResponse?.data?.data[0]) {
-        profilePhotoUrl = profilePhotoResponse.data.data[0];
+      if (uploadResponse?.data?.data) {
+        additionalPhotoUrls = uploadResponse.data.data; // Assign URLs to the array
+        console.log("Additional photo URLs:", additionalPhotoUrls); // Log the new URLs
+      } else {
+        console.log("No data received from the image upload");
+        toast.error("No data received from the image upload.");
       }
     } catch (error) {
-      toast.error("Image upload failed");
+      console.error("Image upload failed:", error); // Log the error
+      toast.error("Image upload failed.");
       setLoading(false);
       return;
     }
 
-    // Prepare params for blog post
+    // Prepare params for blog post submission
     const params = {
       title,
       content,
-      image: profilePhotoUrl
+      images: additionalPhotoUrls, // Images array from the upload response
     };
 
     // Submit the blog post
     try {
       const res = await axios.post(`${Base_url}/admin/blog`, params);
-
       console.log(res);
       
       if (res.status === 201) {
         toast.success(res.data?.message);
-       
-        axios
-          .get(`${Base_url}/admin/blog`)
-          .then((res) => {
-            setUsers(res?.data?.blogs);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-
-          setIsModalOpen(false);
-          setLoading(false);
-  
-
+        const blogsRes = await axios.get(`${Base_url}/admin/blog`);
+        setUsers(blogsRes?.data?.blogs);
+        setIsModalOpen(false);
       }
     } catch (error) {
+      console.error("Blog post submission failed:", error); // Log the error
       toast.error(error.message);
+    } finally {
       setLoading(false);
     }
   };
@@ -114,57 +111,50 @@ const AddNews = ({
           </div>
           <hr />
           <div className="p-5">
-            <div className="text-center my-2">
-              {selectedImage ? (
-                <img
-                  src={selectedImage}
-                  className="mx-auto w-28 h-28 rounded-xl"
-                  alt=""
-                />
-              ) : (
-                <img
-                  src={require("../../assets/image/profile.jpg")}
-                  className="mx-auto w-28 h-28 rounded-xl"
-                  alt=""
-                />
-              )}
-              <div className="my-5">
-                <label
-                  htmlFor="fileInput"
-                  className="px-12 py-2 bg-white font-semibold text-primary border border-gray-200 rounded-lg cursor-pointer"
-                >
-                  Browse File
-                </label>
-                <input
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  name="profileImage"
-                  type="file"
-                  id="fileInput"
-                  className="hidden"
-                />
-              </div>
-            </div>
             <form onSubmit={bannerSubmit}>
               <div className="flex gap-5 flex-wrap">
                 <div className="md:w-[100%] w-[100%]">
                   <Input
                     label={"Title"}
-                    placeholder={""}
+                    placeholder={"Enter title"}
                     name={"title"}
                     className={"border w-full py-3"}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
                 </div>
+
+                <div className="my-2 w-full">
+                  <label htmlFor="additionalImagesInput" className="block mt-2">
+                    Additional Images
+                  </label>
+                  <input
+                    accept="image/*"
+                    onChange={handleAdditionalImagesChange}
+                    name="additionalImages"
+                    type="file"
+                    id="additionalImagesInput"
+                    className="border bg-lightGray w-full py-3 rounded-md px-3"
+                    multiple
+                  />
+                  <div className="mt-4 flex flex-wrap justify-start">
+                    {additionalImages.map((image, index) => (
+                      <img key={index} src={image} className="w-20 h-20 rounded-xl m-1" alt={`Additional ${index}`} />
+                    ))}
+                  </div>
+                </div>
+
                 <div className="md:w-[100%] w-[100%]">
-                  <Input
-                    label={"Description"}
-                    placeholder={""}
-                    name={"description"}
-                    className={"border w-full py-3"}
+                  <label htmlFor="description" className="block mt-2">
+                    Description
+                  </label>
+                  <textarea
+                    placeholder="Enter description"
+                    name="description"
+                    className="border bg-lightGray w-full py-3 rounded-md px-3"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
+                    rows={4}
                   />
                 </div>
               </div>
@@ -187,18 +177,14 @@ const AddNews = ({
                       fill="#E5E7EB"
                     />
                     <path
-                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5533C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7237 75.2124 7.5536C69.5422 4.3835 63.2754 2.54662 56.7378 2.13328C51.7663 1.79038 46.7978 2.57991 42.0637 4.45831C39.7241 5.36619 38.2204 7.87785 38.8576 10.3033C39.4947 12.7288 41.9678 14.1964 44.3732 13.625C48.2273 12.6892 52.2455 12.4558 56.1368 12.9481C60.8911 13.5571 65.4579 15.2143 69.4444 17.8268C73.431 20.4394 76.7381 24.0127 79.0924 28.332C81.1135 31.9041 82.4931 35.8221 83.166 39.8758C83.6313 42.6262 85.9621 44.3779 88.3949 43.7408Z"
                       fill="currentColor"
                     />
                   </svg>
-                  Loading...
+                  Uploading...
                 </button>
               ) : (
-                <Button
-                  label={"Add"}
-                  type={"submit"}
-                  className={"bg-primary mt-3 uppercase text-white py-2 w-full"}
-                />
+                <Button className={"w-full bg-primary h-11 mt-4 rounded-md"} label={"Add News"} />
               )}
             </form>
           </div>

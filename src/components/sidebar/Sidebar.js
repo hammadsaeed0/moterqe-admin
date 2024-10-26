@@ -81,6 +81,12 @@ const Sidebar = ({ side, closeSidebar }) => {
              News
           </Link>
         </li>
+        <li className="px-4 cursor-pointer   font-semibold   transition-all py-3 text-black flex items-center hover:bg-primary hover:text-white">
+          <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
+          <Link to="/banner_ads" className="text-lg capitalize">
+             Banner Ads
+          </Link>
+        </li>
       </ul>
     </div>
   );
