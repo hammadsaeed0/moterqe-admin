@@ -58,7 +58,7 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
     }
 
     // Prepare the data for updating the banner
-    const params = { imageUrl: profilephoto, redirectUrl:redirectUrl};
+    const params = { imageUrl: profilephoto, redirectUrl:redirectUrl?redirectUrl:'/'};
 
     try {
       const response = await axios.patch(`${Base_url}/user/header-image/${getData?._id}`, params);

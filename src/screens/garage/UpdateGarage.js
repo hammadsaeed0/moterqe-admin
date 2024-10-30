@@ -506,6 +506,7 @@ const UpdateGarage = () => {
               value={state.category}
               name={"category"}
               className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
+              required="required"
             >
               <option>Select Categories</option>
 

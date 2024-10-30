@@ -6,83 +6,108 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Modal from "../../components/modal";
 import { MdClose } from "react-icons/md";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData }) => {
   const [loading, setLoading] = useState(false);
-  const [additionalImages, setAdditionalImages] = useState([]);
-  const [imageFiles, setImageFiles] = useState([]);
+  const [additionalImage, setAdditionalImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [subContent, setSubContent] = useState("");
 
-  // Initialize state with existing data
+  // Update state values when getData changes
   useEffect(() => {
     if (getData) {
       setTitle(getData.title || "");
       setContent(getData.content || "");
-      setAdditionalImages(getData.images || []);
+      setSubContent(getData.subContent  || "");
+      setAdditionalImage(null); // Reset additional image preview
     }
   }, [getData]);
 
-  // Handle additional image selection
-  const handleAdditionalImagesChange = (e) => {
-    const files = Array.from(e.target.files);
-    const validImages = files.filter((file) => file.type.startsWith("image/"));
-    if (validImages.length > 0) {
-      const newImages = validImages.map((file) => URL.createObjectURL(file));
-      setAdditionalImages((prev) => [...prev, ...newImages]); // Preview additional images
-      setImageFiles((prev) => [...prev, ...validImages]); // Store additional images for upload
+  // Quill editor configuration
+  const modules = {
+    toolbar: [
+      [{ 'font': [] }, { 'size': [] }],
+      [{ 'header': '1' }, { 'header': '2' }, { 'header': [3, 4, 5, 6] }, { 'font': [] }],
+      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'align': [] }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['link', 'image', 'video'],
+      ['clean']
+    ]
+  };
+
+  const formats = [
+    'header', 'font', 'size', 'bold', 'italic', 'underline', 'strike', 'blockquote',
+    'list', 'bullet', 'indent', 'link', 'image', 'video', 'color', 'background', 'align'
+  ];
+
+  const handleAdditionalImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setAdditionalImage(URL.createObjectURL(file)); // Preview the image
+      setImageFile(file); // Store the file for upload
     } else {
-      toast.error("Please select valid image files.");
+      toast.error("Please select a valid image file.");
     }
   };
 
-  // Submit the form and upload images
+  const handleContentChange = (value) => {
+    setContent(value);
+  };
+
+  // Submit form and upload image if new image file is selected
   const bannerSubmit = async (e) => {
     e.preventDefault();
+
     setLoading(true);
-    let additionalPhotoUrls = [];
+    let imageUrl = additionalImage;
 
-    // Prepare FormData for images if there are new files
-    const formData = new FormData();
-    imageFiles.forEach((file) => {
-      formData.append("images", file); // Additional images
-    });
-
-    // Upload images only if there are new ones
-    if (imageFiles.length > 0) {
+    // Upload new image if selected
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("images", imageFile);
+      
       try {
         const uploadResponse = await axios.post(`http://35.88.137.61/api/api/upload`, formData);
-        if (uploadResponse?.data?.data) {
-          additionalPhotoUrls = uploadResponse.data.data; // Assign URLs to the array
+        if (uploadResponse?.data?.data?.[0]) {
+          imageUrl = uploadResponse.data.data[0];
         } else {
           toast.error("No data received from the image upload.");
+          setLoading(false);
+          return;
         }
       } catch (error) {
+        console.error("Image upload failed:", error);
         toast.error("Image upload failed.");
         setLoading(false);
         return;
       }
     }
 
-    // Prepare params for blog post submission
     const params = {
-      ...(title && title !== getData.title && { title }), // Include title only if it has changed
-      ...(content && content !== getData.content && { content }), // Include content only if it has changed
-      ...(additionalPhotoUrls.length > 0 && {
-        images: [...additionalImages, ...additionalPhotoUrls], // Include images if new ones were uploaded
-      }),
+      title: title,
+      content: content,
+      subContent:subContent ,
+      images: imageUrl,
     };
 
-    // Submit the blog post
     try {
       const res = await axios.put(`${Base_url}/admin/blog/${getData?._id}`, params);
-      if (res.status === 201) {
+      console.log(res);
+     
+      if (res.status === 200) {
         toast.success(res.data?.message);
         const blogsRes = await axios.get(`${Base_url}/admin/blog`);
         setUsers(blogsRes?.data?.blogs);
         setIsModalOpen(false);
       }
     } catch (error) {
+      console.error("Blog post submission failed:", error);
       toast.error(error.message);
     } finally {
       setLoading(false);
@@ -109,41 +134,56 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
                     className={"border w-full py-3"}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                    defaultValue={getData?.title}
+                  />
+                </div>
+
+                <div className="md:w-[100%] w-[100%]">
+                  <Input
+                    label={"Small Description"}
+                    placeholder={"Enter Description"}
+                    name={"subContent"}
+                    className={"border w-full py-3"}
+                    value={subContent}
+                    onChange={(e) => setSubContent(e.target.value)}
+                    defaultValue={getData?.subContent}
                   />
                 </div>
 
                 <div className="my-2 w-full">
-                  <label htmlFor="additionalImagesInput" className="block mt-2">
-                    Additional Images
+                  <label htmlFor="additionalImageInput" className="block mt-2">
+                    Blog Image
                   </label>
                   <input
                     accept="image/*"
-                    onChange={handleAdditionalImagesChange}
-                    name="additionalImages"
+                    onChange={handleAdditionalImageChange}
+                    name="additionalImage"
                     type="file"
-                    id="additionalImagesInput"
+                    id="additionalImageInput"
                     className="border bg-lightGray w-full py-3 rounded-md px-3"
-                    multiple
                   />
-                  <div className="mt-4 flex flex-wrap justify-start">
-                    {/* Show existing images */}
-                    {additionalImages.map((image, index) => (
-                      <img key={index} src={image} className="w-20 h-20 rounded-xl m-1" alt={`Additional ${index}`} />
-                    ))}
-                  </div>
+                  {additionalImage ? (
+                    <div className="mt-4 flex justify-start">
+                      <img src={additionalImage} className="w-20 h-20 rounded-xl m-1" alt="Additional" />
+                    </div>
+                  ) : (
+                    <div className="mt-4 flex justify-start">
+                      <img src={getData?.images} className="w-20 h-20 rounded-xl m-1" alt="Additional" />
+                    </div>
+                  )}
                 </div>
 
                 <div className="md:w-[100%] w-[100%]">
                   <label htmlFor="description" className="block mt-2">
-                    Description
+                    Details
                   </label>
-                  <textarea
-                    placeholder="Enter description"
-                    name="description"
-                    className="border bg-lightGray w-full py-3 rounded-md px-3"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    rows={4}
+                  <ReactQuill 
+                    theme="snow" 
+                    value={content} 
+                    onChange={handleContentChange} 
+                    placeholder="Start writing your blog post here..."
+                    modules={modules}
+                    formats={formats}
                   />
                 </div>
               </div>
@@ -166,14 +206,16 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
                       fill="#E5E7EB"
                     />
                     <path
-                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5533C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7237 75.2124 7.5536C69.5422 4.3835 63.2754 2.54662 56.7378 2.13328C51.7663 1.79038 46.7978 2.57991 42.0637 4.45831C39.7241 5.36619 38.2204 7.87785 38.8576 10.3033C39.4947 12.7288 41.9678 14.1964 44.3732 13.625C48.2273 12.6892 52.2455 12.4558 56.1368 12.9481C60.8911 13.5571 65.4579 15.2143 69.4444 17.8268C73.431 20.4394 76.7381 24.0127 79.0924 28.332C81.1135 31.9041 82.4931 35.8221 83.166 39.8758C83.6313 42.6262 85.9621 44.3779 88.3949 43.7408Z"
+                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5533C95.2932 28.8227 92.871 24.3692 89.8167 20.4867C86.3098 16.3097 80.9299 13.462 76.0387 12.5155C72.3301 11.7812 69.9298 14.6355 69.9298 18.5588C69.9298 20.3671 71.5344 21.9585 73.6749 21.9585C74.5691 21.9585 75.4589 21.3453 75.7408 20.5881C76.1284 19.5745 77.4892 18.3798 78.9855 18.3798C79.9939 18.3798 80.892 19.0762 81.1381 19.8358C81.6907 21.5059 82.3563 23.1468 83.0383 24.6583C83.4772 25.5865 83.8599 26.3742 83.8599 27.0045C83.8599 28.9561 81.3526 30.2969 78.1935 29.7371C76.9682 29.4826 76.0898 29.5856 75.0001 29.5856C73.8732 29.5856 73.0586 29.2345 72.3746 29.8683C72.1986 30.0489 72.0698 30.2285 71.9755 30.4042C71.3797 31.4486 71.3669 32.5468 71.8313 33.8634C72.3248 35.2513 73.1782 36.2201 74.5463 36.6033C75.9429 36.991 77.2619 36.2028 78.1287 35.3558C79.4673 34.0942 80.8023 32.8842 81.9855 31.4138C83.7025 29.4335 83.0162 26.4923 81.7022 24.6675C80.7042 23.1564 79.6174 22.4228 78.3379 22.0637C76.7759 21.5262 75.2033 21.1215 73.6916 21.0617C71.6164 21.0003 69.9755 22.5166 69.9755 24.6133C69.9755 26.0082 70.8851 27.0746 72.4515 27.0773C73.5876 27.0806 74.7079 27.9625 75.0769 28.7818C75.517 29.7973 75.6615 31.1562 76.1643 32.4156C77.0224 34.7121 79.1309 36.1484 81.0367 36.3253C82.9672 36.5096 84.2253 35.0701 84.9734 33.8382C85.2679 33.1863 85.5078 32.4932 85.8437 31.7932C87.3479 28.3754 89.1675 25.4706 91.2231 23.1523C93.5412 20.5557 95.0176 18.6527 93.9676 16.0205C93.1672 13.9384 92.0526 12.4593 91.4317 11.0207C91.0409 9.94002 90.5334 9.02005 90.6338 7.6989C90.7768 5.82396 92.0747 4.34849 93.9676 4.07902V39.0409Z"
                       fill="currentColor"
                     />
                   </svg>
-                  loading...
+                  Loading...
                 </button>
               ) : (
-                <Button className={"w-full bg-primary h-11 mt-4 rounded-md"} label={"Update News"} />
+                <Button  label={'Update News'} type="submit" className="w-full mt-4 bg-primary">
+                  Update News
+                </Button>
               )}
             </form>
           </div>

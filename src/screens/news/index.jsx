@@ -158,15 +158,15 @@ const News = () => {
                               <td className="align-middle text-sm font-normal px-6 py-4   text-center">
                                 <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
                                   <img
-                                    src={item?.images[0]}
+                                    src={item?.images}
                                     className=" w-24 h-14 rounded-md mx-auto"
                                     alt=""
                                   />
                                 </span>
                               </td>
                               <td className="text-sm font-normal text-center px-6 py-4">
-                                <span className=" text-base text-black  py-1 px-2.5 leading-none text-center  align-baseline   bg-green-200  rounded-full">
-                                  {item?.content}
+                                <span  className=" text-base text-black  py-1 px-2.5 leading-none text-center  align-baseline   bg-green-200  rounded-full">
+                               {item?.subContent}
                                 </span>
                               </td>
 
