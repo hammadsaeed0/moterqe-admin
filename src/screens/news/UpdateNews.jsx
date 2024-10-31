@@ -49,8 +49,8 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
   const handleAdditionalImageChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
-      setAdditionalImage(URL.createObjectURL(file)); // Preview the image
-      setImageFile(file); // Store the file for upload
+      setAdditionalImage(URL.createObjectURL(file));
+      setImageFile(file);
     } else {
       toast.error("Please select a valid image file.");
     }
@@ -67,13 +67,15 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
     setLoading(true);
     let imageUrl = additionalImage;
 
-    // Upload new image if selected
     if (imageFile) {
       const formData = new FormData();
       formData.append("images", imageFile);
-      
+
       try {
         const uploadResponse = await axios.post(`http://35.88.137.61/api/api/upload`, formData);
+
+        console.log(uploadResponse);
+        
         if (uploadResponse?.data?.data?.[0]) {
           imageUrl = uploadResponse.data.data[0];
         } else {
@@ -89,19 +91,26 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
       }
     }
 
+
+    console.log(imageUrl);
+    
+
+
     const params = {
       title: title,
       content: content,
       subContent:subContent ,
-      images: imageUrl,
+      images:`${imageUrl}`,
     };
 
     try {
       const res = await axios.put(`${Base_url}/admin/blog/${getData?._id}`, params);
-      console.log(res);
-     
+      console.log("Update Response:", res);
+  
       if (res.status === 200) {
         toast.success(res.data?.message);
+        
+        // Fetch updated blogs after successful update
         const blogsRes = await axios.get(`${Base_url}/admin/blog`);
         setUsers(blogsRes?.data?.blogs);
         setIsModalOpen(false);
