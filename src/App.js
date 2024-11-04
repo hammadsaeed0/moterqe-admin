@@ -19,6 +19,7 @@ import UpdateGarage from "./screens/garage/UpdateGarage";
 import HomeBanner from "./screens/homeBanner";
 import News from "./screens/news";
 import BannerAds from "./screens/bannerAds";
+import FeaturedRequest from "./screens/featuresCreate";
 function App() {
   return (
     <>
@@ -41,6 +42,7 @@ function App() {
           <Route path="/home_banner" element={<HomeBanner />} />
           <Route path="/news" element={<News />} />
           <Route path="/banner_ads" element={<BannerAds />} />
+          <Route path="/featured_request" element={<FeaturedRequest />} />
           
           <Route path="/create_garage/:id" element={<CreateGarage />} />
         {/* </Route> */}

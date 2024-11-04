@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 const Sidebar = ({ side, closeSidebar }) => {
   return (
     <div
-      className={`fixed top-0  shadow-xl ${side} sm:left-0 w-64 h-screen bg-[#e5e7eb] z-10 transition-all`}
+      className={`fixed top-0  shadow-xl ${side} sm:left-0 w-64 overflow-x-auto h-screen bg-[#e5e7eb] z-10 transition-all`}
     >
       <i
         className="bi bi-x-lg absolute text-black top-4 right-4 sm:hidden block cursor-pointer text-lg"
@@ -85,6 +85,12 @@ const Sidebar = ({ side, closeSidebar }) => {
           <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
           <Link to="/banner_ads" className="text-lg capitalize">
              Banner Ads
+          </Link>
+        </li>
+        <li className="px-4 cursor-pointer   font-semibold   transition-all py-3 text-black flex items-center hover:bg-primary hover:text-white">
+          <i className="bi bi-people mr-2 inline-block text-xl"></i>{" "}
+          <Link to="/featured_request" className="text-lg capitalize">
+             Featured Request
           </Link>
         </li>
       </ul>

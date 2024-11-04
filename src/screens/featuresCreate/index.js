@@ -7,9 +7,7 @@ import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import { toast } from "react-toastify";
-import ImageUploadModal from "./ImageUploadModal";
-import moment from "moment";
-const Cars = () => {
+const FeaturedRequest = () => {
   const [users, setUsers] = useState([]);
   const [activeCars, setActiveCards] = useState([]);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
@@ -17,27 +15,24 @@ const Cars = () => {
 
   useEffect(() => {
     axios
-      .post(`${Base_url}/admin/all-cars-by-status?status=pending`)
+      .get(
+        `https://new-motorqe-backend.vercel.app/v1/user/get_feature_application`
+      )
       .then((res) => {
-        console.log(res);
+        console.log(res?.data);
 
-        setUsers(res.data);
+        setUsers(res?.data?.applications);
       })
       .catch((error) => {
         console.log(error);
       });
 
     axios
-      .get(`${Base_url}/admin/all-cars`)
+      .post(`${Base_url}/admin/all-cars-by-status?status=active`)
       .then((res) => {
         console.log(res, "active cars");
-       
-    const filteredCars = res?.data?.data.filter(
-      (car) => car.status === "active" || car.status === "sold"
-    );
 
-    // Set the filtered result to state
-    setActiveCards(filteredCars);
+        setActiveCards(res.data);
       })
       .catch((error) => {
         console.log(error);
@@ -65,26 +60,26 @@ const Cars = () => {
               Swal.fire("Deleted!", "Your file has been deleted.", "success");
 
               axios
-              .post(`${Base_url}/admin/all-cars-by-status?status=pending`)
-              .then((res) => {
-                console.log(res);
-        
-                setUsers(res.data);
-              })
-              .catch((error) => {
-                console.log(error);
-              });
-        
-            axios
-              .post(`${Base_url}/admin/all-cars-by-status?status=active`)
-              .then((res) => {
-                console.log(res, "active cars");
-        
-                setActiveCards(res.data);
-              })
-              .catch((error) => {
-                console.log(error);
-              });
+                .post(`${Base_url}/admin/all-cars-by-status?status=pending`)
+                .then((res) => {
+                  console.log(res);
+
+                  setUsers(res.data);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+
+              axios
+                .post(`${Base_url}/admin/all-cars-by-status?status=active`)
+                .then((res) => {
+                  console.log(res, "active cars");
+
+                  setActiveCards(res.data);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
             }
           })
           .catch((error) => {
@@ -94,41 +89,32 @@ const Cars = () => {
     });
   };
 
-  const [carStatus, setCarStatus] = useState("pending");
-
   const UpdateStatus = (id, newStatus) => {
     const params = {
       status: newStatus,
     };
     axios
-      .patch(`${Base_url}/admin/update-car-status/${id}`, params)
+      .patch(`${Base_url}/user/update_feature_application/${id}`, params)
       .then((res) => {
         console.log(res);
 
         if (res.status === 200) {
           toast.success(res.data.message);
 
+          const featureTimePeriodInMinutes =
+            res?.data?.application?.featureTimePeriod * 24 * 60;
+          const params = {
+            featureTimePeriod: featureTimePeriodInMinutes,
+          };
           axios
-            .post(`${Base_url}/admin/all-cars-by-status?status=pending`)
+            .post(
+              `${Base_url}/user/make-feature/${res?.data?.application?.carId}`,
+              params
+            )
             .then((res) => {
-              console.log(res);
-
-              setUsers(res.data);
+            //   toast.success(res.data.message);
             })
-            .catch((error) => {
-              console.log(error);
-            });
-
-          axios
-            .post(`${Base_url}/admin/all-cars-by-status?status=active`)
-            .then((res) => {
-              console.log(res, "active cars");
-
-              setActiveCards(res.data);
-            })
-            .catch((error) => {
-              console.log(error);
-            });
+            .catch((err) => {});
         }
       })
       .catch((error) => {
@@ -136,28 +122,22 @@ const Cars = () => {
       });
   };
 
+  const UpdateRefresh = () => {
+    axios
+      .patch(`${Base_url}/admin/allow-refresh`)
+      .then((res) => {
+        console.log(res);
 
-  const  UpdateRefresh =  () =>{
-
-    axios.patch(`${Base_url}/admin/allow-refresh`).then((res)=>{
-
-      console.log(res);
-   
-      if(res.data.success===true){
-        toast.success(res.data.message)
-      }else{
-        toast.error(res.data.message)
-      }
-
-      
-
-      
-    }).catch((error)=>{
-      console.log(error);
-      
-    })
-
-  }
+        if (res.data.success === true) {
+          toast.success(res.data.message);
+        } else {
+          toast.error(res.data.message);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const renderTable = (data) => (
     <section className="mb-20 mt-7 text-gray-800">
@@ -192,49 +172,23 @@ const Cars = () => {
                         scope="col"
                         className=" text-sm text-white  font-bold px-6 py-4"
                       >
-                        Make
+                        Featured Price
                       </th>
+
 
                       <th
                         scope="col"
                         className="text-sm  text-white   font-bold px-6 py-4"
                       >
-                        Price Range
+                        Feature Time Period
                       </th>
 
-                      <th
-                        scope="col"
-                        className="text-sm  text-white   font-bold px-6 py-4"
-                      >
-                        Model
-                      </th>
-
-                      <th
-                        scope="col"
-                        className="text-sm  text-white   font-bold px-6 py-4"
-                      >
-                        Date
-                      </th>
-
-                      <th
-                        scope="col"
-                        className="text-sm  text-white   font-bold px-6 py-4"
-                      >
-                        Sold Date
-                      </th>
 
                       <th
                         scope="col"
                         className="text-sm  text-white   font-bold px-6 py-4"
                       >
                         Status
-                      </th>
-
-                      <th
-                        scope="col"
-                        className="text-sm  text-white   font-bold px-6 py-4"
-                      >
-                        360 Image
                       </th>
 
                       <th
@@ -253,7 +207,7 @@ const Cars = () => {
                     </tr>
                   </thead>
                   <tbody className="">
-                    {data?.map((item, index) => {
+                    {users?.map((item, index) => {
                       return (
                         <>
                           <tr className="bg-white border-t   rounded-md ">
@@ -267,13 +221,13 @@ const Cars = () => {
                             </th>
                             <td className="align-middle text-sm font-normal px-6 py-4 whitespace-nowrap  text-center">
                               <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                {item?.title}
+                                {item?.carId?.title}
                               </span>
                             </td>
                             <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
                               <div className=" w-14 h-14 rounded-lg overflow-hidden">
                                 <img
-                                  src={item?.car_images[0]}
+                                  src={item?.carId?.car_images[0]}
                                   className=" w-full h-full"
                                   alt=""
                                 />
@@ -281,47 +235,20 @@ const Cars = () => {
                             </td>
                             <td className="text-sm font-normal text-center px-6 py-4 whitespace-nowrap">
                               <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                {item?.make}
+                                {item?.price}
                               </span>
                             </td>
                             <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
                               <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
-                                {item?.price_range}
+                                {item?.featureTimePeriod}
                               </span>
                             </td>
-                            <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
-                              <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
-                                {item?.model}
-                              </span>
-                            </td>
+                           
 
-                            <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
-                              <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
-                                {moment(item?.createdAt).format('DD/MM/YYYY')}
-                              </span>
-                            </td>
-
-                            <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
-                              <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
-                                {item?.soldAt?
-                                 moment(item?.soldAt).format('DD/MM/YYYY'):'-'
-                                }
-                               
-                              </span>
-                            </td>
-
+                           
                             <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
                               <span className=" text-sm text-white bg-primary   py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
                                 {item?.status}
-                              </span>
-                            </td>
-
-                            <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
-                              <span onClick={()=>{
-                                setIsUpdateOpen(true);
-                                setView(item)
-                              }} className=" text-sm text-white bg-primary   py-1.5 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-lg">
-                                360 Upload
                               </span>
                             </td>
 
@@ -335,32 +262,13 @@ const Cars = () => {
                                 className="px-3 py-2 bg-gray-200 rounded-lg shadow-md"
                               >
                                 <option value={"pending"}>Pending</option>
-                                <option value={"active"}>Active</option>
-                                <option value={"reject"}>Reject</option>
+                                <option value={"approved"}>Approved</option>
+                                <option value={"rejected"}>Rejected</option>
                               </select>
                             </td>
 
                             <td className="align-middle  text-sm font-normal  py-4 whitespace-nowrap">
                               <div className=" flex items-center justify-center gap-2">
-                                <Link
-                                  to={`http://18.237.245.227:3000/car_details_page/${item?._id}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <FaEye
-                                    color=""
-                                    size={30}
-                                    className=" text-secondary"
-                                  />
-                                </Link>
-                                <Link
-                                  to={`/update_car/${item?._id}`}
-                                  className=" cursor-pointer"
-                                >
-                                  <img
-                                    src={require("../../assets/image/edit.png")}
-                                  />
-                                </Link>
                                 <div className=" cursor-pointer">
                                   <img
                                     onClick={() => removeFunction(item._id)}
@@ -386,44 +294,14 @@ const Cars = () => {
 
   return (
     <Wrapper>
-
-      <ImageUploadModal isModalOpen={isUpdateOpen} setIsModalOpen={setIsUpdateOpen} setActiveCards={setActiveCards}  getData={view} />
       <div className=" flex   justify-between items-center">
         <div>
-          <h2 className="main_title"> Cars</h2>
-        </div>
-
-        <div className=" flex gap-3">
-        <div>
-            <Button
-              onClick={()=>UpdateRefresh()}
-              label={"Refresh"}
-              className={"hover:bg-secondary bg-primary"}
-            />
-          </div>
-          <div>
-            <Button
-              onClick={() => setCarStatus("pending")}
-              label={"pending"}
-              className={` hover:bg-secondary ${
-                carStatus === "pending" ? "bg-secondary" : " bg-primary"
-              } `}
-            />
-          </div>
-          <div>
-            <Button
-              onClick={() => setCarStatus("approved")}
-              label={"approved"}
-              className={`    hover:bg-secondary ${
-                carStatus === "approved" ? "bg-secondary" : " bg-primary"
-              } `}
-            />
-          </div>
+          <h2 className="main_title"> Featured Request</h2>
         </div>
       </div>
-      {carStatus === "pending" ? renderTable(users) : renderTable(activeCars)}
+      {renderTable(users)}
     </Wrapper>
   );
 };
 
-export default Cars;
+export default FeaturedRequest;

@@ -14,6 +14,8 @@ const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
   const [additionalImage, setAdditionalImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [title, setTitle] = useState("");
+  const [adstext, setadstext] = useState("");
+  const [adslink, setadslink] = useState("");
   const [content, setContent] = useState("");
   const [subContent, setSubContent] = useState("");
 
@@ -99,6 +101,8 @@ const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
       content:subContent,
       subContent:content,
       images:imageUrl,
+      ads_text:adstext,
+      ads_link:adslink
     };
 
     try {
@@ -149,6 +153,27 @@ const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
                     className={"border w-full py-3"}
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
+                  />
+                </div>
+                <div className="md:w-[100%] w-[100%]">
+                  <Input
+                    label={"Ads Text"}
+                    placeholder={"Enter Ads Text"}
+                    name={"adstext"}
+                    className={"border w-full py-3"}
+                    value={adstext}
+                    onChange={(e) => setadstext(e.target.value)}
+                  />
+                </div>
+
+                <div className="md:w-[100%] w-[100%]">
+                  <Input
+                    label={"Ads Link"}
+                    placeholder={"Enter Ads Text"}
+                    name={"adslink"}
+                    className={"border w-full py-3"}
+                    value={adslink}
+                    onChange={(e) => setadslink(e.target.value)}
                   />
                 </div>
 

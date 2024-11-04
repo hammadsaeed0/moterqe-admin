@@ -16,11 +16,15 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [subContent, setSubContent] = useState("");
+  const [adstext, setadstext] = useState("");
+  const [adslink, setadslink] = useState("");
 
   // Update state values when getData changes
   useEffect(() => {
     if (getData) {
       setTitle(getData.title || "");
+      setadstext(getData?.ads_text || "")
+      setadslink(getData?.ads_link || "")
       setContent(getData.content || "");
       setSubContent(getData.subContent  || "");
       setAdditionalImage(null); // Reset additional image preview
@@ -101,6 +105,8 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
       content: content,
       subContent:subContent ,
       images:`${imageUrl}`,
+      ads_text:adstext,
+      ads_link:adslink
     };
 
     try {
@@ -156,6 +162,32 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
                     value={subContent}
                     onChange={(e) => setSubContent(e.target.value)}
                     defaultValue={getData?.subContent}
+                  />
+                </div>
+
+                <div className="md:w-[100%] w-[100%]">
+                  <Input
+                    label={"Ads Text"}
+                    placeholder={"Enter Ads Text"}
+                    name={"adstext"}
+                    className={"border w-full py-3"}
+                    value={adstext}
+                    onChange={(e) => setadstext(e.target.value)}
+                    defaultValue={getData?.ads_text}
+                  />
+                </div>
+
+                <div className="md:w-[100%] w-[100%]">
+                  <Input
+                    label={"Ads Link"}
+                    placeholder={"Enter Ads Text"}
+                    name={"adslink"}
+                    className={"border w-full py-3"}
+                    value={adslink}
+                    onChange={(e) => setadslink(e.target.value)}
+
+                    defaultValue={getData?.ads_link}
+                    
                   />
                 </div>
 
