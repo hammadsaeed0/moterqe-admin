@@ -16,13 +16,15 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [subContent, setSubContent] = useState("");
+  console.log(subContent);
+  
   const [adstext, setadstext] = useState("");
   const [adslink, setadslink] = useState("");
 
   // Update state values when getData changes
   useEffect(() => {
     if (getData) {
-      setTitle(getData.title || "");
+      setTitle(getData?.title || "");
       setadstext(getData?.ads_text || "")
       setadslink(getData?.ads_link || "")
       setContent(getData.content || "");
@@ -103,10 +105,11 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
     const params = {
       title: title,
       content: content,
-      subContent:subContent ,
+      // subContent: subContent,
       ads_text:adstext,
       ads_link:adslink,
-      images:`${imageUrl}`,
+      ...(subContent && { subContent: subContent }),
+      ...(imageUrl && { images: imageUrl }),
     };
 
     try {
