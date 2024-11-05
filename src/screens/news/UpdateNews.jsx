@@ -104,9 +104,9 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
       title: title,
       content: content,
       subContent:subContent ,
-      images:`${imageUrl}`,
       ads_text:adstext,
-      ads_link:adslink
+      ads_link:adslink,
+      images:`${imageUrl}`,
     };
 
     try {
@@ -169,7 +169,7 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
                   <Input
                     label={"Ads Text"}
                     placeholder={"Enter Ads Text"}
-                    name={"adstext"}
+                    name={"ads_text"}
                     className={"border w-full py-3"}
                     value={adstext}
                     onChange={(e) => setadstext(e.target.value)}

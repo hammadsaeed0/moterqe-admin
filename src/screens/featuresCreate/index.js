@@ -198,12 +198,12 @@ const FeaturedRequest = () => {
                         Update Status
                       </th>
 
-                      <th
+                      {/* <th
                         scope="col"
                         className="text-sm  text-white   font-bold px-10 py-4"
                       >
                         Action
-                      </th>
+                      </th> */}
                     </tr>
                   </thead>
                   <tbody className="">
@@ -267,7 +267,7 @@ const FeaturedRequest = () => {
                               </select>
                             </td>
 
-                            <td className="align-middle  text-sm font-normal  py-4 whitespace-nowrap">
+                            {/* <td className="align-middle  text-sm font-normal  py-4 whitespace-nowrap">
                               <div className=" flex items-center justify-center gap-2">
                                 <div className=" cursor-pointer">
                                   <img
@@ -277,7 +277,7 @@ const FeaturedRequest = () => {
                                   />
                                 </div>
                               </div>
-                            </td>
+                            </td> */}
                           </tr>
                         </>
                       );

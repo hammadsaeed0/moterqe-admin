@@ -93,6 +93,8 @@ const UpdateCars = () => {
   const [state, setState] = useState({
     title: "",
     type_of_ad: "",
+    type_of_ad_show:"",
+    imported:"",
     body_type: "",
     make: "",
     model: "",
@@ -235,6 +237,8 @@ const UpdateCars = () => {
       const params = {
         ...(state.title && { title: state.title }),
         ...(state.type_of_ad && { type_of_ad: state.type_of_ad }),
+        ...(state.type_of_ad_show && { type_of_ad_show: state.type_of_ad_show }),
+        ...(state.imported && { imported: state.imported }),
         ...(state.body_type && { body_type: state.body_type }),
         ...(state.make && { make: state.make }),
         ...(state.model && { model: state.model }),
@@ -415,7 +419,7 @@ const UpdateCars = () => {
           </div>
           <div>
             <label className="block text-sm text-left  font-medium  text-textColor">
-              Type Of Ad
+            Car Classification
             </label>
             <select
               onChange={handleInputs}
@@ -423,9 +427,29 @@ const UpdateCars = () => {
               name="type_of_ad"
               className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
             >
-              <option value="">Select Type</option>
+              <option value="">Select Car Classification</option>
               <option value="Standard">Standard</option>
               <option value="Featured">Featured</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm text-left  font-medium  text-textColor">
+              Type Of Ad
+            </label>
+            <select
+              onChange={handleInputs}
+              value={state.type_of_ad_show || singleNewListing?.type_of_ad_show || ""}
+              name={"type_of_ad_show"}
+              className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
+              
+            >
+              <option value={""} selected>
+                Select Type
+              </option>
+
+              <option value={"Sale"}>Sale</option>
+              <option value={"Swap"}>Swap</option>
+              <option value={"Sale & Swap"}>Sale & Swap</option>
             </select>
           </div>
           <div>
@@ -545,8 +569,30 @@ const UpdateCars = () => {
                 Select Vehicle Condition
               </option>
 
-              <option value={"new"}>New</option>
-              <option value={"old"}>Old</option>
+              <option value={"New"}>New</option>
+              <option value={"Used"}>Used</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm text-left  font-medium  text-textColor">
+              Important Car
+            </label>
+            <select
+              onChange={handleInputs}
+              value={state.imported ||
+                singleNewListing?.imported ||
+                ""
+              }
+              name={"imported"}
+              className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
+              
+            >
+              <option  selected>
+                Select Important
+              </option>
+
+              <option value={"true"}>Yes</option>
+              <option value={"false"}>No</option>
             </select>
           </div>
           <div>
@@ -561,31 +607,7 @@ const UpdateCars = () => {
               defaultValue={singleNewListing?.mileage}
             />
           </div>
-          <div>
-            <label className="block text-sm text-left  font-medium  text-textColor">
-              Vehicle Category
-            </label>
-            <select
-              onChange={handleInputs}
-              value={
-                state.vehicle_category ||
-                singleNewListing?.vehicle_category ||
-                ""
-              }
-              name={"vehicle_category"}
-              className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
-            >
-              <option value={""} selected>
-                Select Vehicle Category
-              </option>
-
-              {vehicleCategories?.map((item, index) => (
-                <option key={index} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </div>
+          
           <div>
             <label className="block text-sm text-left  font-medium  text-textColor">
               Specifications
@@ -598,15 +620,63 @@ const UpdateCars = () => {
               name={"specifications"}
               className="mt-1 bg-[#FEFBFB] text-gray-600 p-2 border rounded-md w-full"
             >
-              <option value={" "} selected>
-                Select Specifications
+             <option>Select Specifications</option>
+              <option value="All">All</option>
+              <option value="GCC">GCC</option>
+              <option value="China">China</option>
+              <option value="Italy">Italy</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="United States">United States</option>
+              <option value="Japan">Japan</option>
+              <option value="Germany">Germany</option>
+              <option value="France">France</option>
+              <option value="Netherlands">Netherlands</option>
+              <option value="India">India</option>
+              <option
+                value="South Korea
+"
+              >
+                South Korea{" "}
               </option>
-              <option value={"Airbags"}>Airbags</option>
-              <option value={"Dimensions"}>Dimensions</option>
-              <option value={"Drivetrain"}>Drivetrain</option>
-              <option value={"EBD"}>EBD</option>
-              <option value={"Engine"}>Engine</option>
-              <option value={"Torque"}>Torque</option>
+              <option value="Sweden">Sweden</option>
+              <option value="Taiwan">Taiwan</option>
+              <option value="Australia">Australia</option>
+              <option value="Spain">Spain</option>
+              <option value="Malaysia">Malaysia</option>
+              <option
+                value="Czech Republic
+"
+              >
+                Czech Republic
+              </option>
+              <option value="Russia">Russia</option>
+              <option value="Austria">Austria</option>
+              <option
+                value="Switzerland
+"
+              >
+                Switzerland
+              </option>
+              <option
+                value="Switzerland
+"
+              >
+                Argentina
+              </option>
+
+              <option
+                value="Brazil
+"
+              >
+                Brazil
+              </option>
+
+              <option
+                value="Other
+"
+              >
+                Other
+              </option>
             </select>
           </div>
           <div>
