@@ -18,11 +18,11 @@ const News = () => {
 
   useEffect(() => {
     axios
-      .get(`${Base_url}/admin/blog`)
+      .get(`${Base_url}/blog/getAll`)
       .then((res) => {
         console.log(res);
 
-        setUsers(res?.data?.blogs);
+        setUsers(res?.data?.data);
       })
       .catch((error) => {
         console.log(error);
@@ -43,22 +43,22 @@ const News = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`${Base_url}/admin/blog/${id}`)
+          .delete(`${Base_url}/blog/delete/${id}`)
           .then((res) => {
             console.log(res);
             if (res.status === 200) {
               Swal.fire("Deleted!", "Your file has been deleted.", "success");
 
               axios
-                .get(`${Base_url}/admin/blog`)
-                .then((res) => {
-                  console.log(res);
-
-                  setUsers(res?.data?.blogs);
-                })
-                .catch((error) => {
-                  console.log(error);
-                });
+              .get(`${Base_url}/blog/getAll`)
+              .then((res) => {
+                console.log(res);
+        
+                setUsers(res?.data?.data);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
             }
           })
           .catch((error) => {
@@ -83,12 +83,12 @@ const News = () => {
       />
       <div className=" flex   justify-between items-center">
         <div>
-          <h2 className="main_title"> News</h2>
+          <h2 className="main_title"> Blogs</h2>
         </div>
         <div>
           <Button
             className={"  bg-primary py-2.5"}
-            label={`Add News`}
+            label={`Add Blog`}
             onClick={() => setIsModalOpen(true)}
           />
         </div>
@@ -158,7 +158,7 @@ const News = () => {
                               <td className="align-middle text-sm font-normal px-6 py-4   text-center">
                                 <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
                                   <img
-                                    src={item?.images}
+                                    src={item?.image}
                                     className=" w-24 h-14 rounded-md mx-auto"
                                     alt=""
                                   />
@@ -166,7 +166,7 @@ const News = () => {
                               </td>
                               <td className="text-sm font-normal text-center px-6 py-4">
                                 <span  className=" text-base text-black  py-1 px-2.5 leading-none text-center  align-baseline   bg-green-200  rounded-full">
-                               {item?.subContent}
+                               {item?.subtitle}
                                 </span>
                               </td>
 

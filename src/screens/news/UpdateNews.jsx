@@ -17,7 +17,7 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
   const [content, setContent] = useState("");
   const [subContent, setSubContent] = useState("");
   console.log(subContent);
-  
+
   const [adstext, setadstext] = useState("");
   const [adslink, setadslink] = useState("");
 
@@ -25,10 +25,8 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
   useEffect(() => {
     if (getData) {
       setTitle(getData?.title || "");
-      setadstext(getData?.ads_text || "")
-      setadslink(getData?.ads_link || "")
       setContent(getData.content || "");
-      setSubContent(getData.subContent  || "");
+      setSubContent(getData.subtitle || "");
       setAdditionalImage(null); // Reset additional image preview
     }
   }, [getData]);
@@ -81,7 +79,7 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
         const uploadResponse = await axios.post(`http://35.88.137.61/api/api/upload`, formData);
 
         console.log(uploadResponse);
-        
+
         if (uploadResponse?.data?.data?.[0]) {
           imageUrl = uploadResponse.data.data[0];
         } else {
@@ -99,28 +97,23 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
 
 
     console.log(imageUrl);
-    
+
 
 
     const params = {
       title: title,
       content: content,
-      // subContent: subContent,
-      ads_text:adstext,
-      ads_link:adslink,
-      ...(subContent && { subContent: subContent }),
+      ...(subContent && { subtitle: subContent }),
       ...(imageUrl && { images: imageUrl }),
     };
 
     try {
-      const res = await axios.put(`${Base_url}/admin/blog/${getData?._id}`, params);
+      const res = await axios.put(`${Base_url}/blog/update/${getData?._id}`, params);
       console.log("Update Response:", res);
-  
-      if (res.status === 200) {
+
+      if (res.data.status === 'success') {
         toast.success(res.data?.message);
-        
-        // Fetch updated blogs after successful update
-        const blogsRes = await axios.get(`${Base_url}/admin/blog`);
+        const blogsRes = await axios.get(`${Base_url}/blog/getAll`);
         setUsers(blogsRes?.data?.blogs);
         setIsModalOpen(false);
       }
@@ -137,7 +130,7 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <div>
           <div className="p-3 flex justify-between items-center">
-            <h1 className="capitalize h4 font-semibold">Update News</h1>
+            <h1 className="capitalize h4 font-semibold">Update Blogs</h1>
             <MdClose onClick={() => setIsModalOpen(false)} size={25} />
           </div>
           <hr />
@@ -164,35 +157,13 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
                     className={"border w-full py-3"}
                     value={subContent}
                     onChange={(e) => setSubContent(e.target.value)}
-                    defaultValue={getData?.subContent}
+                    defaultValue={getData?.subtitle}
                   />
                 </div>
 
-                <div className="md:w-[100%] w-[100%]">
-                  <Input
-                    label={"Ads Text"}
-                    placeholder={"Enter Ads Text"}
-                    name={"ads_text"}
-                    className={"border w-full py-3"}
-                    value={adstext}
-                    onChange={(e) => setadstext(e.target.value)}
-                    defaultValue={getData?.ads_text}
-                  />
-                </div>
 
-                <div className="md:w-[100%] w-[100%]">
-                  <Input
-                    label={"Ads Link"}
-                    placeholder={"Enter Ads Text"}
-                    name={"adslink"}
-                    className={"border w-full py-3"}
-                    value={adslink}
-                    onChange={(e) => setadslink(e.target.value)}
 
-                    defaultValue={getData?.ads_link}
-                    
-                  />
-                </div>
+
 
                 <div className="my-2 w-full">
                   <label htmlFor="additionalImageInput" className="block mt-2">
@@ -212,7 +183,7 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
                     </div>
                   ) : (
                     <div className="mt-4 flex justify-start">
-                      <img src={getData?.images} className="w-20 h-20 rounded-xl m-1" alt="Additional" />
+                      <img src={getData?.image} className="w-20 h-20 rounded-xl m-1" alt="Additional" />
                     </div>
                   )}
                 </div>
@@ -221,10 +192,10 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
                   <label htmlFor="description" className="block mt-2">
                     Details
                   </label>
-                  <ReactQuill 
-                    theme="snow" 
-                    value={content} 
-                    onChange={handleContentChange} 
+                  <ReactQuill
+                    theme="snow"
+                    value={content}
+                    onChange={handleContentChange}
                     placeholder="Start writing your blog post here..."
                     modules={modules}
                     formats={formats}
@@ -257,8 +228,8 @@ const UpdateNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers, getData
                   Loading...
                 </button>
               ) : (
-                <Button  label={'Update News'} type="submit" className="w-full mt-4 bg-primary">
-                  Update News
+                <Button label={'Update News'} type="submit" className="w-full mt-4 bg-primary">
+                  Update
                 </Button>
               )}
             </form>

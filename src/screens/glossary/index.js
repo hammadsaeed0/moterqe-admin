@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../Wrapper";
+import Button from "../../components/Button";
 import axios from "axios";
 import { Base_url } from "../../utils/Base_url";
 import Swal from "sweetalert2";
-import UpdateBanner from "./UpdateBanner";
-import Button from "../../components/Button";
-import AddBanner from "./AddBanner";
-const HomeBanner = () => {
+import AddGlossary from "./AddGlossary";
+import UpdateGlossary from "./UpdateGlossary";
+
+const Glossary = () => {
   const [users, setUsers] = useState([]);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isUpdateOpen2, setIsUpdateOpen2] = useState(false);
   const [singleUser, setSingleUser] = useState({});
+  
 
   console.log(isUpdateOpen);
 
@@ -20,7 +22,7 @@ const HomeBanner = () => {
 
   useEffect(() => {
     axios
-      .get(`${Base_url}/slider/getAll`)
+      .get(`${Base_url}/faq/getAll`)
       .then((res) => {
         console.log(res);
 
@@ -45,16 +47,16 @@ const HomeBanner = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`${Base_url}/slider/delete/${id}`)
+          .delete(`${Base_url}/faq/delete/${id}`)
           .then((res) => {
             console.log(res);
             if (res.status === 200) {
               Swal.fire("Deleted!", "Your file has been deleted.", "success");
 
               axios
-                .get(`${Base_url}/slider/getAll`)
+                .get(`${Base_url}/faq/getAll`)
                 .then((res) => {
-                  console.log(res);
+                  console.log(res.data);
 
                   setUsers(res.data.data);
                 })
@@ -72,20 +74,38 @@ const HomeBanner = () => {
 
   return (
     <Wrapper>
-
-      <UpdateBanner setIsModalOpen={setIsUpdateOpen} isModalOpen={isUpdateOpen} setUsers={setUsers} getData={singleUser} />
-      <AddBanner setIsModalOpen={setIsOpen} isModalOpen={isOpen} setUsers={setUsers} />
       <div className=" flex   justify-between items-center">
         <div>
-          <h2 className="main_title"> Home Banner</h2>
+          <h2 className="main_title">Glossary</h2>
         </div>
+
 
         <div>
-          <Button onClick={() => setIsOpen(true)} label={'Add Banner'} className={' bg-primary'} />
+          <Button
+            className={"  bg-primary py-2.5"}
+            label={`Add Glossary`}
+
+            onClick={()=>setIsUpdateOpen(true)}
+           
+          />
         </div>
+       
       </div>
 
+      <AddGlossary
+        isModalOpen={isUpdateOpen}
+        setIsModalOpen={setIsUpdateOpen}
+        setUsers={setUsers}
+      />
 
+
+<UpdateGlossary
+        singleUser={singleUser}
+        isModalOpen={isUpdateOpen2}
+        setIsModalOpen={setIsUpdateOpen2}
+        setUsers={setUsers}
+      />
+     
 
       <section className="mb-20 mt-7 text-gray-800">
         <div className="block rounded-lg shadow-lg">
@@ -102,14 +122,23 @@ const HomeBanner = () => {
                         >
                           No
                         </th>
+                        
+                        
                         <th
                           scope="col"
-                          className=" text-sm text-white  font-bold px-6 py-4"
+                          className="text-sm  text-white   font-bold px-6 py-4"
                         >
-                          Image
+                        Question
                         </th>
 
 
+                        <th
+                          scope="col"
+                          className="text-sm  text-white   font-bold px-6 py-4"
+                        >
+                        Answer
+                        </th>
+                       
 
                         <th
                           scope="col"
@@ -129,30 +158,36 @@ const HomeBanner = () => {
                                 className="text-sm font-normal px-6 py-4   whitespace-nowrap "
                               >
                                 <p className="mb-0.5 font-medium text-black">
-                                  #1
+                                  #{index+1}
                                 </p>
                               </th>
-                              <td className="align-middle text-sm font-normal px-6 py-4 whitespace-nowrap  text-center">
-                                <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                  <img src={item?.slider} className=" w-20 h-20 rounded-md mx-auto" alt="" />
+                             
+
+                              <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
+                                <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
+                                  {item?.question}
                                 </span>
                               </td>
 
-
+                              <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
+                                <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
+                                  {item?.answer}
+                                </span>
+                              </td>
+                              
 
                               <td className="align-middle  text-sm font-normal px-6 py-4 whitespace-nowrap">
                                 <div className=" flex justify-center gap-2">
-                                  <div className=" cursor-pointer">
+                                  <div>
                                     <img
                                       onClick={() => {
-                                        setIsUpdateOpen(true);
-                                        setSingleUser(item);
+                                        setIsUpdateOpen2(true);
+                                        setSingleUser(item)
                                       }}
                                       src={require("../../assets/image/edit.png")}
                                       alt=""
                                     />
                                   </div>
-
                                   <div>
                                     <img
                                       onClick={() => removeFunction(item._id)}
@@ -160,7 +195,6 @@ const HomeBanner = () => {
                                       alt=""
                                     />
                                   </div>
-
                                 </div>
                               </td>
                             </tr>
@@ -179,4 +213,4 @@ const HomeBanner = () => {
   );
 };
 
-export default HomeBanner;
+export default Glossary;

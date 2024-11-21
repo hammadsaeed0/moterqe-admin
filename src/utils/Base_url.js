@@ -1,1 +1,1 @@
-export const Base_url = 'https://new-motorqe-backend.vercel.app/v1'
+export const Base_url = 'https://seat-backend-2f085bcbc5b8.herokuapp.com'

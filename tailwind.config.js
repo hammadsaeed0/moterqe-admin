@@ -4,8 +4,8 @@ module.exports = {
   theme: {
     extend: {
       colors:{
-        'primary':"#FB5722",
-        'secondary':"#0C0DB5",
+        'primary':"#014aad",
+        'secondary':"#014aad",
         'red':"#FF0000",
         'green':"#5EAA22",
         'gulabi':"#FC17EC",
@@ -13,6 +13,9 @@ module.exports = {
         'orange':"#FF9100",
         'lightGray':"#F8F8F8",
         'darkGray':"#D9D9D933",
+      },
+      backgroundImage:{
+        LoginBg: "url('./assets/image/Hexagon.png')",
       }
     },
   },

@@ -7,7 +7,7 @@ import Modal from "../../components/modal";
 import { MdClose } from "react-icons/md";
 import { Base_url } from "../../utils/Base_url";
 
-const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUsers }) => {
+const AddBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUsers }) => {
   const [loading, setLoader] = useState(false);
   const [selectedImage, setSelectedImage] = useState(getData?.imageUrl || null);
   const [selectImages, setSelectedImages] = useState(null);
@@ -36,17 +36,16 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
   const bannerSubmit = async (e) => {
     e.preventDefault();
     setLoader(true);
-
-    // Prepare the data for updating the banner
-    const params =  new FormData();
-     params.append("slider",selectImages);
+    const params = new FormData();
+    params.append("slider",selectImages)
 
     try {
-      const response = await axios.put(`${Base_url}/slider/update/${getData?._id}`, params);
+      const response = await axios.post(`${Base_url}/slider/create`, params);
 
-      if (response.status === 200) {
+      if (response.data.status === 'success') {
         toast.success("Slider updated successfully!");
         setIsModalOpen(false);
+        
         axios
         .get(`${Base_url}/slider/getAll`)
         .then((res) => {
@@ -57,6 +56,7 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
         .catch((error) => {
           console.log(error);
         });
+        
       } else {
         toast.error(response.data.message);
       }
@@ -67,13 +67,12 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
     }
   };
 
- 
 
   return (
     <Modal isOpen={isModalOpen} onClose={closeModal}>
       <div>
         <div className="p-3 flex justify-between items-center">
-          <h1 className="capitalize h4 font-semibold">Update Banner</h1>
+          <h1 className="capitalize h4 font-semibold">Add Banner</h1>
           <MdClose onClick={() => setIsModalOpen(false)} size={25} />
         </div>
         <hr />
@@ -86,7 +85,8 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
                     <img src={selectedImage} alt="Selected" className="w-full h-auto rounded" />
                   </div>
                 ) : (
-                  <img src={getData?.slider} className="w-full h-28" alt="Existing" />
+                    <>
+                    </>
                 )}
 
                 <Input
@@ -96,17 +96,8 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
                   label="Upload Image"
                 />
               </div>
-              <div className="w-full">
-                <Input
-                  label={"Redirect Url"}
-                  placeholder={"Enter Url"}
-                  name={"redirectUrl"}
-                  className={"border w-full py-3"}
-                  value={redirectUrl}
-                  onChange={(e) => setRedirectUrl(e.target.value)}
-                  defaultValue={getData?.redirectUrl}
-                />
-              </div>
+             
+             
             </div>
 
             {loading ? (
@@ -136,8 +127,8 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
               </button>
             ) : (
               <Button
-                label="Update"
-                className="bg-[#FB5722] w-full text-center mt-3 py-2.5 rounded-lg text-white uppercase font-semibold"
+                label="Add"
+                className=" bg-primary w-full text-center mt-3 py-2.5 rounded-lg text-white uppercase font-semibold"
               />
             )}
           </form>
@@ -147,4 +138,4 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
   );
 };
 
-export default UpdateBanner;
+export default AddBanner;

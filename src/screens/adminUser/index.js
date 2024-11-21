@@ -1,16 +1,33 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../Wrapper";
+import Button from "../../components/Button";
 import axios from "axios";
 import { Base_url } from "../../utils/Base_url";
 import Swal from "sweetalert2";
-import UpdateBanner from "./UpdateBanner";
-import Button from "../../components/Button";
-import AddBanner from "./AddBanner";
-const HomeBanner = () => {
+import { Link } from "react-router-dom";
+import AddAdminUser from "./AddAdminUser";
+import UpdateAdminUser from "./UpdateAdminUser";
+const AdminUser = () => {
   const [users, setUsers] = useState([]);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isUpdateOpen2, setIsUpdateOpen2] = useState(false);
   const [singleUser, setSingleUser] = useState({});
+  const UpdateModal = () => {
+    setIsUpdateOpen(true);
+  };
+
+  const closeUpdateModal = () => {
+    setIsUpdateOpen(false);
+  };
+
+
+  const UpdateModal2 = () => {
+    setIsUpdateOpen2(true);
+  };
+
+  const closeUpdateModal2 = () => {
+    setIsUpdateOpen2(false);
+  };
 
   console.log(isUpdateOpen);
 
@@ -20,7 +37,7 @@ const HomeBanner = () => {
 
   useEffect(() => {
     axios
-      .get(`${Base_url}/slider/getAll`)
+      .get(`${Base_url}/admin/getAll`)
       .then((res) => {
         console.log(res);
 
@@ -45,16 +62,16 @@ const HomeBanner = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`${Base_url}/slider/delete/${id}`)
+          .delete(`${Base_url}/adminUser/delete/${id}`)
           .then((res) => {
             console.log(res);
             if (res.status === 200) {
               Swal.fire("Deleted!", "Your file has been deleted.", "success");
 
               axios
-                .get(`${Base_url}/slider/getAll`)
+                .get(`${Base_url}/adminUser/get`)
                 .then((res) => {
-                  console.log(res);
+                  console.log(res.data);
 
                   setUsers(res.data.data);
                 })
@@ -72,20 +89,35 @@ const HomeBanner = () => {
 
   return (
     <Wrapper>
-
-      <UpdateBanner setIsModalOpen={setIsUpdateOpen} isModalOpen={isUpdateOpen} setUsers={setUsers} getData={singleUser} />
-      <AddBanner setIsModalOpen={setIsOpen} isModalOpen={isOpen} setUsers={setUsers} />
       <div className=" flex   justify-between items-center">
         <div>
-          <h2 className="main_title"> Home Banner</h2>
+          <h2 className="main_title">Admins</h2>
         </div>
+
 
         <div>
-          <Button onClick={() => setIsOpen(true)} label={'Add Banner'} className={' bg-primary'} />
+          <Button
+            className={"  bg-primary py-2.5"}
+            label={`Add Admin`}
+
+            onClick={()=>setIsUpdateOpen(true)}
+           
+          />
         </div>
+       
       </div>
 
-
+      <AddAdminUser
+        isModalOpen={isUpdateOpen}
+        setIsModalOpen={setIsUpdateOpen}
+        setUsers={setUsers}
+      />
+      <UpdateAdminUser
+        singleUser={singleUser}
+        isModalOpen={isUpdateOpen2}
+        setIsModalOpen={setIsUpdateOpen2}
+        setUsers={setUsers}
+      />
 
       <section className="mb-20 mt-7 text-gray-800">
         <div className="block rounded-lg shadow-lg">
@@ -106,10 +138,35 @@ const HomeBanner = () => {
                           scope="col"
                           className=" text-sm text-white  font-bold px-6 py-4"
                         >
-                          Image
+                          First Name
+                        </th>
+                        <th
+                          scope="col"
+                          className=" text-sm text-white  font-bold px-6 py-4"
+                        >
+                          Last Name
                         </th>
 
+                        <th
+                          scope="col"
+                          className="text-sm  text-white   font-bold px-6 py-4"
+                        >
+                          Email
+                        </th>
 
+                        
+                        <th
+                          scope="col"
+                          className="text-sm  text-white   font-bold px-6 py-4"
+                        >
+                        Role
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-sm  text-white   font-bold px-6 py-4"
+                        >
+                          Password
+                        </th>
 
                         <th
                           scope="col"
@@ -134,25 +191,44 @@ const HomeBanner = () => {
                               </th>
                               <td className="align-middle text-sm font-normal px-6 py-4 whitespace-nowrap  text-center">
                                 <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                  <img src={item?.slider} className=" w-20 h-20 rounded-md mx-auto" alt="" />
+                                  {item?.firstName}
+                                </span>
+                              </td>
+                              <td className="text-sm font-normal text-center px-6 py-4 whitespace-nowrap">
+                                <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
+                                  {item?.lastName}
+                                </span>
+                              </td>
+                              <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
+                                <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
+                                  {item?.email}
+                                </span>
+                              </td>
+                             
+
+                              <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
+                                <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
+                                  {item?.role}
+                                </span>
+                              </td>
+                              <td className="align-middle text-center text-sm font-normal px-6 py-4 whitespace-nowrap text-left">
+                                <span className=" text-base text-black  py-1 px-2.5 leading-none  whitespace-nowrap    bg-green-200  rounded-full">
+                                  {item?.password}
                                 </span>
                               </td>
 
-
-
                               <td className="align-middle  text-sm font-normal px-6 py-4 whitespace-nowrap">
                                 <div className=" flex justify-center gap-2">
-                                  <div className=" cursor-pointer">
+                                  <div>
                                     <img
                                       onClick={() => {
-                                        setIsUpdateOpen(true);
-                                        setSingleUser(item);
+                                        setIsUpdateOpen2(true);
+                                        setSingleUser(item)
                                       }}
                                       src={require("../../assets/image/edit.png")}
                                       alt=""
                                     />
                                   </div>
-
                                   <div>
                                     <img
                                       onClick={() => removeFunction(item._id)}
@@ -160,7 +236,6 @@ const HomeBanner = () => {
                                       alt=""
                                     />
                                   </div>
-
                                 </div>
                               </td>
                             </tr>
@@ -179,4 +254,4 @@ const HomeBanner = () => {
   );
 };
 
-export default HomeBanner;
+export default AdminUser;
