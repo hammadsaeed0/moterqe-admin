@@ -23,7 +23,7 @@ const Wrapper = ({ children }) => {
       <section
         className={`ml-0 ${
           side === "left-0 md:-left-64" ? "ml-0 " : "ml-0 md:ml-64"
-        }  bg-gray-100 min-h-screen pt-24 px-4`}
+        }  bg-white min-h-screen pt-24 px-4`}
       >
         <div className=" text-black md:px-4 px-0 py-6">{children}</div>
       </section>

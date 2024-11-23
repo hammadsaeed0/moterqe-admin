@@ -14,6 +14,8 @@ const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
   const [additionalImage, setAdditionalImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [title, setTitle] = useState("");
+  const [adstext, setadstext] = useState("");
+  const [adslink, setadslink] = useState("");
   const [content, setContent] = useState("");
   const [subContent, setSubContent] = useState("");
 
@@ -39,8 +41,8 @@ const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
   const handleAdditionalImageChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
-      setAdditionalImage(URL.createObjectURL(file));
-      setImageFile(file);
+      setAdditionalImage(URL.createObjectURL(file)); // Preview the image
+      setImageFile(file); // Store the file for upload
     } else {
       toast.error("Please select a valid image file.");
     }
@@ -69,33 +71,52 @@ const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
     }
 
     setLoading(true);
+    let imageUrl = "";
 
-    // Creating a FormData object for the API call
-    const params = new FormData();
-    params.append('title', title);
-    params.append('content', subContent);  // Updated content field
-    params.append('subtitle', content);   // Added subtitle as content
-    params.append('image', imageFile);
+    // Prepare FormData for the image
+    const formData = new FormData();
+    formData.append("images", imageFile);
+
+    // Upload image
+    try {
+      const uploadResponse = await axios.post(`http://35.88.137.61/api/api/upload`, formData);
+
+      if (uploadResponse?.data?.data?.[0]) {
+        imageUrl = uploadResponse.data.data[0];
+      } else {
+        toast.error("No data received from the image upload.");
+        setLoading(false);
+        return;
+      }
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      toast.error("Image upload failed.");
+      setLoading(false);
+      return;
+    }
+
+   
+    const params = {
+      title: title,
+      content:subContent,
+      subContent:content,
+      images:imageUrl,
+      ads_text:adstext,
+      ads_link:adslink
+    };
 
     try {
-      // API call to submit the data
-      const res = await axios.post(`${Base_url}/blog/create`, params, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (res?.data?.status === 'success') {
+      const res = await axios.post(`${Base_url}/admin/blog`, params);
+      
+      if (res.status === 201) {
         toast.success(res.data?.message);
-
-        // Fetch updated blogs
-        const blogsRes = await axios.get(`${Base_url}/blog/getAll`);
-        setUsers(blogsRes?.data?.data);
+        const blogsRes = await axios.get(`${Base_url}/admin/blog`);
+        setUsers(blogsRes?.data?.blogs);
         setIsModalOpen(false);
       }
     } catch (error) {
       console.error("Blog post submission failed:", error);
-      toast.error(error.response?.data?.message);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -106,7 +127,7 @@ const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <div>
           <div className="p-3 flex justify-between items-center">
-            <h1 className="capitalize h4 font-semibold">Add Blogs</h1>
+            <h1 className="capitalize h4 font-semibold">Upload News</h1>
             <MdClose onClick={() => setIsModalOpen(false)} size={25} />
           </div>
           <hr />
@@ -134,10 +155,31 @@ const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
                     onChange={(e) => setContent(e.target.value)}
                   />
                 </div>
+                <div className="md:w-[100%] w-[100%]">
+                  <Input
+                    label={"Ads Text"}
+                    placeholder={"Enter Ads Text"}
+                    name={"adstext"}
+                    className={"border w-full py-3"}
+                    value={adstext}
+                    onChange={(e) => setadstext(e.target.value)}
+                  />
+                </div>
+
+                <div className="md:w-[100%] w-[100%]">
+                  <Input
+                    label={"Ads Link"}
+                    placeholder={"Enter Ads Text"}
+                    name={"adslink"}
+                    className={"border w-full py-3"}
+                    value={adslink}
+                    onChange={(e) => setadslink(e.target.value)}
+                  />
+                </div>
 
                 <div className="my-2 w-full">
                   <label htmlFor="additionalImageInput" className="block mt-2">
-                    Blog Image
+                     Blog Image
                   </label>
                   <input
                     accept="image/*"
@@ -158,11 +200,11 @@ const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
                   <label htmlFor="description" className="block mt-2">
                     Details
                   </label>
-
-                  <ReactQuill
-                    theme="snow"
-                    value={subContent}
-                    onChange={handleContentChange}
+                  
+                  <ReactQuill 
+                    theme="snow" 
+                    value={subContent} 
+                    onChange={handleContentChange} 
                     placeholder="Start writing your blog post here..."
                     modules={modules}
                     formats={formats}
@@ -188,18 +230,14 @@ const AddNews = ({ isModalOpen, setIsModalOpen, closeModal, setUsers }) => {
                       fill="#E5E7EB"
                     />
                     <path
-                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5533C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7237 75.2124 7.5536C69.5422 4.3835 63.2754 2.54662 56.7378 2.13328C51.7663 1.79038 46.7978 2.57991 42.0635 4.46458C39.5147 5.48402 38.0532 8.01753 38.6903 10.4429C39.3274 12.8683 41.7717 14.3357 44.3205 13.7049C47.179 13.0359 50.2144 13.0398 52.9867 14.1086C55.759 15.1774 58.1379 17.7133 58.5379 21.0085C58.8836 23.7369 60.3949 26.1248 63.0482 27.7113C65.2906 29.0068 68.3964 28.8415 70.2979 27.2106C72.1994 25.5797 73.1596 22.9998 73.1105 20.3667C73.0394 18.8367 72.2063 17.3599 71.0174 16.5188C69.8285 15.6777 68.2963 15.6458 66.8527 16.4293C65.1907 17.2629 63.9637 18.7032 63.2429 20.3495C62.0532 21.9268 61.4738 23.6741 61.5761 25.5223C61.7132 26.7577 63.2326 27.9727 64.8664 27.6927C66.4481 27.4127 67.6917 26.4406 68.3413 25.1637C69.2448 23.3799 70.8157 21.5763 72.8223 20.7678C74.9535 19.9258 77.5063 19.2202 80.2829 19.4235C83.5221 19.6496 86.3895 21.3129 88.3674 23.8246C91.7197 28.4157 93.9689 34.7398 93.9676 39.0409Z"
+                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5533C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7237 75.2124 7.5536C69.5422 4.3835 63.2754 2.54662 56.7378 2.13328C51.7663 1.79038 46.7978 2.57991 42.0635 4.46458C39.5147 5.48402 38.0532 8.01753 38.6903 10.4429C39.3274 12.8683 41.7717 14.2154 44.2557 13.5923C47.8514 12.6986 51.5674 12.5269 55.1917 13.0889C59.7978 13.779 64.1586 15.4017 68.0566 17.8759C71.9545 20.3502 75.2724 23.6395 77.819 27.5723C79.9141 30.6799 81.4443 34.115 82.338 37.7555C82.9636 40.0969 85.5422 41.5531 87.9676 40.9161Z"
                       fill="currentColor"
                     />
                   </svg>
                   Loading...
                 </button>
               ) : (
-                <Button
-                  label={"Save"}
-                  className="btn-primary bg-primary w-full mt-3"
-                  type="submit"
-                />
+                <Button label={'Upload News'} className={' mt-4 bg-primary'} text="Upload News" />
               )}
             </form>
           </div>

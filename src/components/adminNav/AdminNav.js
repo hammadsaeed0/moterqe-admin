@@ -1,80 +1,163 @@
 import { FiMenu } from "react-icons/fi";
 import Input from "../Input";
 import { FaSearch } from "react-icons/fa";
+import { MdClose, MdOutlineNotificationsActive } from "react-icons/md";
 import { useEffect, useState } from "react";
-import { RiLogoutCircleRLine } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import axios from "axios";
+import moment from "moment";
+import { IoNotificationsOff } from "react-icons/io5";
+import { Base_url } from "../../utils/Base_url";
 const AdminNav = ({ openSidebar, side, closeSidebar }) => {
   const [isModalOpen, setModalOpen] = useState(false);
-  const userData = JSON.parse(localStorage.getItem('ceat_admin_user'))
-  const Dropdown = () => {
-    setModalOpen(!isModalOpen);
-  }
-  const navigate = useNavigate();
-  const logoutFun = () => {
-    localStorage.removeItem('ceat_admin_user');
-    navigate('/');
-    toast.success('Logout successfully!');
 
-  }
+  const handleNotificationClick = () => {
+    setModalOpen(!isModalOpen);
+  };
+
+  const [myNotification, setMyNotification] = useState([]);
+  useEffect(() => {
+    axios
+      .get(`https://new-motorqe-backend.vercel.app/v1/user/notification`)
+      .then((res) => {
+        console.log(res.data.data, "dfffffffffffffffffffffff");
+
+        setMyNotification(res.data.data);
+      })
+      .catch((error) => {});
+  }, []);
+
+  const NotificationRead = (id) => {
+    axios
+      .patch(`${Base_url}/user/read-notification/${id}`)
+      .then((res) => {
+        console.log(res);
+
+        axios
+          .get(`https://new-motorqe-backend.vercel.app/v1/user/notification`)
+          .then((res) => {
+            console.log(res.data.data, "dfffffffffffffffffffffff");
+
+            setMyNotification(res.data.data);
+          })
+          .catch((error) => {});
+      })
+      .catch((error) => {});
+  };
+
+
+    // Filter to get only unread notifications
+    const unreadNotifications = myNotification.filter(
+      (notification) => notification.status === "unread"
+    );
 
   return (
     <nav
-      className={`fixed  z-30 top-0 right-0   ${side === "left-0 md:-left-64" ? "left-0" : "left-0 md:left-64"
-        }`}
+      className={`fixed  z-30 top-0 right-0   ${
+        side === "left-0 md:-left-64" ? "left-0" : "left-0 md:left-64"
+      }`}
     >
-      <div className="   bg-white shadow-md w-full flex justify-between  items-center p-4">
+      <div className="   bg-[#0c0cb8] w-full flex justify-between  items-center p-4">
         <div className=" flex items-center gap-4">
           {side === "left-0 md:-left-64" ? (
-            <FiMenu size={30} onClick={closeSidebar} color="black" />
+            <FiMenu size={30} onClick={closeSidebar} color="white" />
           ) : (
-            <FiMenu size={30} color="black" onClick={openSidebar} />
+            <FiMenu size={30} color="white" onClick={openSidebar} />
           )}
 
           <div className=" hidden md:block w-96">
             <Input
               placeholder={`Search...`}
               Icon={<FaSearch />}
-              className={" w-full border"}
+              className={" w-full"}
             />
           </div>
         </div>
 
         <div className=" flex items-center gap-5">
-
           <div className=" relative">
-            <div onClick={Dropdown} className=" w-10 h-10 cursor-pointer bg-primary flex  justify-center items-center rounded-full">
-              {userData?.firstName && userData?.lastName ? (
-                <span className="text-white uppercase font-semibold text-sm">
-                  {`${userData.firstName.charAt(0)}/${userData.lastName.charAt(0)}`}
-                </span>
-              ) : (
-                <span className="text-white uppercase font-semibold text-sm">N/A</span>
-              )}            </div>
+            <MdOutlineNotificationsActive
+              onClick={handleNotificationClick}
+              color="white"
+              size={34}
+            />
+
+            {/* Notification Modal */}
             {isModalOpen && (
-              <div className=" pt-3 mt-2 bg-white w-80 rounded-md shadow-[1px_1px_10px_rgba(0,_0,_0,_0.2)] absolute top-12 right-4">
+              <div className="   absolute right-0 top-12 flex justify-center items-center z-30">
+                <div className="bg-white p-4  rounded shadow-lg w-80">
+                  <div className=" flex justify-between items-center">
+                    <h2 className="text-xl font-semibold mb-2">
+                      Notifications
+                    </h2>
 
-                <div className=" flex gap-4 px-4 py-2 pb-1.5">
-                  <div className=" cursor-pointer">
-                    <img src={require('../../assets/image/profile.jpg')} className=" w-14 h-14 rounded-full" alt="" />
-
+                    <MdClose
+                      className="  cursor-pointer text-gray-500"
+                      onClick={() => setModalOpen(false)}
+                      size={25}
+                    />
                   </div>
-                  <div>
-                    <h5 className=" font-semibold text-lg  text-primary uppercase">{`${userData?.firstName} ${' '} ${userData?.lastName}`}</h5>
-                    <span className=" text-gray-500">{userData?.email}</span>
-                  </div>
+                  <ul className="p-0   justify-between items-center h-72 overflow-y-auto">
+                    {myNotification?.length > 0 ? (
+                      myNotification?.map((item, index) => {
+                        return (
+                          <>
+                            <li className=" py-2  w-full  gap-4" key={index}>
+                              {/* <div className=" ">
+                                  <img src={require('../../assets/image/logo.png')}  className=' w-12 h-12 rounded-full' />
+                                </div> */}
+                              <div>
+                                <p className=" m-0"> {item?.message}</p>
+                                <div className=" flex pt-2 justify-between items-center">
+                                  <span className=" text-[13px]">
+                                    {moment(item?.createdAt).format(
+                                      "DD-MM-YYYY "
+                                    )}
+                                  </span>
+                                  {item?.status === "unread" ? (
+                                    <button
+                                      onClick={() =>
+                                        NotificationRead(item?._id)
+                                      }
+                                      className=" bg-primary text-white px-5 py-1 rounded-md"
+                                    >
+                                      Read
+                                    </button>
+                                  ) : (
+                                    <button className="  bg-gray-300 text-white px-5 py-1 rounded-md">
+                                      Read
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </li>
+                            <hr />
+                          </>
+                        );
+                      })
+                    ) : (
+                      <div className=" text-center">
+                        <IoNotificationsOff
+                          size={60}
+                          className=" text-secondary text-center mx-auto"
+                        />
+                        <span className=" font-semibold">No message yet</span>
+                      </div>
+                    )}
+                  </ul>
                 </div>
-                <hr />
-                <ul className=" p-4">
-                  <li onClick={logoutFun} className=" flex cursor-pointer items-center gap-3 py-3">
-                    <RiLogoutCircleRLine size={20} className=" text-primary" />
-                    <span className=" font-semibold">Sign out</span>
-                  </li>
-                </ul>
               </div>
             )}
-
+             {unreadNotifications.length > 0 && (
+              <span className="w-6 h-6 bg-primary absolute -top-2 -right-2 flex justify-center items-center rounded-full">
+                <p className="m-0 text-white">{unreadNotifications.length}</p>
+              </span>
+            )}
+          </div>
+          <div>
+            <img
+              src={require("../../assets/image/profile.jpg")}
+              className=" w-12 h-12 rounded-full"
+            />
           </div>
         </div>
       </div>

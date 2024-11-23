@@ -37,26 +37,36 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
     e.preventDefault();
     setLoader(true);
 
+    let profilephoto = getData?.imageUrl;
+
+    // If a new image is selected, upload it
+    if (selectImages) {
+      try {
+        const param = new FormData();
+        param.append("images", selectImages);
+
+        const uploadResponse = await axios.post(`http://35.88.137.61/api/api/upload`, param);
+        
+        if (uploadResponse?.status === 200) {
+          profilephoto = uploadResponse.data.data[0]; // Assuming the API returns the new image URL
+        }
+      } catch (error) {
+        toast.error("Error uploading the image");
+        setLoader(false);
+        return;
+      }
+    }
+
     // Prepare the data for updating the banner
-    const params =  new FormData();
-     params.append("slider",selectImages);
+    const params = { imageUrl: profilephoto, redirectUrl:redirectUrl?redirectUrl:'/'};
 
     try {
-      const response = await axios.put(`${Base_url}/slider/update/${getData?._id}`, params);
+      const response = await axios.patch(`${Base_url}/user/header-image/${getData?._id}`, params);
 
       if (response.status === 200) {
-        toast.success("Slider updated successfully!");
+        toast.success("Banner updated successfully!");
         setIsModalOpen(false);
-        axios
-        .get(`${Base_url}/slider/getAll`)
-        .then((res) => {
-          console.log(res);
-  
-          setUsers(res.data.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+        fetchUpdatedUsers();
       } else {
         toast.error(response.data.message);
       }
@@ -67,7 +77,14 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
     }
   };
 
- 
+  const fetchUpdatedUsers = async () => {
+    try {
+      const res = await axios.get(`${Base_url}/user/header-image`);
+      setUsers(res.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <Modal isOpen={isModalOpen} onClose={closeModal}>
@@ -86,7 +103,7 @@ const UpdateBanner = ({ isModalOpen, setIsModalOpen, closeModal, getData, setUse
                     <img src={selectedImage} alt="Selected" className="w-full h-auto rounded" />
                   </div>
                 ) : (
-                  <img src={getData?.slider} className="w-full h-28" alt="Existing" />
+                  <img src={getData?.imageUrl} className="w-full h-28" alt="Existing" />
                 )}
 
                 <Input

@@ -11,11 +11,10 @@
 /* Scrollbar Styling */
 .overflow-x-auto::-webkit-scrollbar {
     width: 5px;
-    display: none ;
 }
  
 .overflow-x-auto::-webkit-scrollbar-track {
-    background-color: #8B0100;
+    background-color: #0C0CB8;
     -webkit-border-radius: 10px;
     border-radius: 10px;
 }
@@ -23,7 +22,7 @@
 .overflow-x-auto::-webkit-scrollbar-thumb {
     -webkit-border-radius: 10px;
     border-radius: 10px;
-    background: #BC0000; 
+    background: #0C0CB8; 
 }
 
 

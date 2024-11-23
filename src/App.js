@@ -9,26 +9,24 @@ import Customers from "./screens/Customer";
 import Brands from "./screens/brands";
 import Plans from "./screens/plans";
 import Cars from "./screens/cars";
+import Dealer from "./screens/dealer";
+import ServiceProvider from "./screens/serviceProvider";
 import ServiceRequest from "./screens/serviceRequests";
+import CreateGarage from "./screens/createGarage";
 import UpdateCars from "./screens/cars/UpdateCars";
 import Garage from "./screens/garage";
 import UpdateGarage from "./screens/garage/UpdateGarage";
 import HomeBanner from "./screens/homeBanner";
 import News from "./screens/news";
+import BannerAds from "./screens/bannerAds";
 import FeaturedRequest from "./screens/featuresCreate";
-import ContactUs from "./screens/contactUs";
-import AdminUser from "./screens/adminUser";
-import Faqs from "./screens/faqs";
-import PrivateRoute from "./routes/PrivateRoute";
-import PublicRoute from "./routes/PublicRoute";
-import Glossary from "./screens/glossary";
 function App() {
   return (
     <>
       <ToastContainer />
       <Routes>
-        <Route path="/" element={<PublicRoute><AdminLogin /></PublicRoute>} />
-        <Route element={<PrivateRoute />}>
+        <Route path="/" element={<AdminLogin />} />
+        {/* <Route element={<PrivateRoute />}> */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/plans" element={<Plans />} />
           <Route path="/cars" element={<Cars />} />
@@ -36,17 +34,18 @@ function App() {
           <Route path="/update_garage/:id" element={<UpdateGarage />} />
           <Route path="/update_car/:id" element={<UpdateCars />} />
           <Route path="/service_request" element={<ServiceRequest />} />
+          <Route path="/dealer" element={<Dealer />} />
+          <Route path="/service_provider" element={<ServiceProvider />} />
           <Route path="/key_management" element={<SupporterManagement />} />
           <Route path="/customers" element={<Customers />} />
-          <Route path="/Admin-user" element={<AdminUser />} />
           <Route path="/brands" element={<Brands />} />
           <Route path="/home_banner" element={<HomeBanner />} />
-          <Route path="/blogs" element={<News />} />
-          <Route path="/glossary" element={<Glossary/>} />
-          <Route path="/faqs" element={<Faqs />} />
-          <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/banner_ads" element={<BannerAds />} />
           <Route path="/featured_request" element={<FeaturedRequest />} />
-        </Route>
+          
+          <Route path="/create_garage/:id" element={<CreateGarage />} />
+        {/* </Route> */}
       </Routes>
     </>
   );

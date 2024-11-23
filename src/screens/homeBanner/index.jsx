@@ -4,14 +4,11 @@ import axios from "axios";
 import { Base_url } from "../../utils/Base_url";
 import Swal from "sweetalert2";
 import UpdateBanner from "./UpdateBanner";
-import Button from "../../components/Button";
-import AddBanner from "./AddBanner";
 const HomeBanner = () => {
   const [users, setUsers] = useState([]);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [singleUser, setSingleUser] = useState({});
-
+ 
   console.log(isUpdateOpen);
 
   const [deleteUser, setDeleteUser] = useState({});
@@ -20,7 +17,7 @@ const HomeBanner = () => {
 
   useEffect(() => {
     axios
-      .get(`${Base_url}/slider/getAll`)
+      .get(`${Base_url}/user/header-image`)
       .then((res) => {
         console.log(res);
 
@@ -45,16 +42,16 @@ const HomeBanner = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`${Base_url}/slider/delete/${id}`)
+          .delete(`${Base_url}/admin/delete-plan/${id}`)
           .then((res) => {
             console.log(res);
             if (res.status === 200) {
               Swal.fire("Deleted!", "Your file has been deleted.", "success");
 
               axios
-                .get(`${Base_url}/slider/getAll`)
+                .get(`${Base_url}/admin/plan`)
                 .then((res) => {
-                  console.log(res);
+                  console.log(res.data);
 
                   setUsers(res.data.data);
                 })
@@ -73,19 +70,18 @@ const HomeBanner = () => {
   return (
     <Wrapper>
 
-      <UpdateBanner setIsModalOpen={setIsUpdateOpen} isModalOpen={isUpdateOpen} setUsers={setUsers} getData={singleUser} />
-      <AddBanner setIsModalOpen={setIsOpen} isModalOpen={isOpen} setUsers={setUsers} />
+        <UpdateBanner setIsModalOpen={setIsUpdateOpen} isModalOpen={isUpdateOpen} setUsers={setUsers} getData={singleUser} />
       <div className=" flex   justify-between items-center">
         <div>
           <h2 className="main_title"> Home Banner</h2>
         </div>
 
         <div>
-          <Button onClick={() => setIsOpen(true)} label={'Add Banner'} className={' bg-primary'} />
+        
         </div>
       </div>
 
-
+   
 
       <section className="mb-20 mt-7 text-gray-800">
         <div className="block rounded-lg shadow-lg">
@@ -108,8 +104,13 @@ const HomeBanner = () => {
                         >
                           Image
                         </th>
-
-
+                        
+                        <th
+                          scope="col"
+                          className="text-sm  text-white   font-bold px-6 py-4"
+                        >
+                          Url
+                        </th>
 
                         <th
                           scope="col"
@@ -134,11 +135,16 @@ const HomeBanner = () => {
                               </th>
                               <td className="align-middle text-sm font-normal px-6 py-4 whitespace-nowrap  text-center">
                                 <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
-                                  <img src={item?.slider} className=" w-20 h-20 rounded-md mx-auto" alt="" />
+                                <img src={item?.imageUrl}   className=" w-20 h-20 rounded-md mx-auto" alt="" />
                                 </span>
                               </td>
-
-
+                              <td className="text-sm font-normal text-center px-6 py-4 whitespace-nowrap">
+                                <span className=" text-base text-black  py-1 px-2.5 leading-none text-center whitespace-nowrap align-baseline   bg-green-200  rounded-full">
+                                   {item?.redirectUrl}
+                                </span>
+                              </td>
+                          
+                             
 
                               <td className="align-middle  text-sm font-normal px-6 py-4 whitespace-nowrap">
                                 <div className=" flex justify-center gap-2">
@@ -152,15 +158,7 @@ const HomeBanner = () => {
                                       alt=""
                                     />
                                   </div>
-
-                                  <div>
-                                    <img
-                                      onClick={() => removeFunction(item._id)}
-                                      src={require("../../assets/image/del.png")}
-                                      alt=""
-                                    />
-                                  </div>
-
+                                  
                                 </div>
                               </td>
                             </tr>
